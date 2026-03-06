@@ -17,9 +17,7 @@ class MainActivity : AppCompatActivity() {
 
     data class Player(val playerId: Int, val playerName: String, val playerLevel: Int)
     data class Matchup(val player1: Player, val player2: Player, val player3: Player, val player4: Player)
-    data class Round(val matchups: List<Matchup>)
-
-    //private lateinit var rvRounds: RecyclerView
+    data class Round(val matchups: List<Matchup>, val breakers: List<Player>)
 
     private lateinit var et_nrgames: EditText
     private lateinit var b_generate: Button
@@ -70,7 +68,8 @@ class MainActivity : AppCompatActivity() {
         val rvMatchups = findViewById<RecyclerView>(R.id.rvMatchups)
 
         val players: List<Player> = setUpPlayers()
-        val matchups: List<Matchup> = setUpMatchups(players)
+        val round: Round = setUpMatchups(players)
+        val matchups: List<Matchup> = round.matchups
 
         rvMatchups.adapter = MatchupsAdapter(this, matchups)
         rvMatchups.layoutManager = LinearLayoutManager(this)
@@ -96,9 +95,10 @@ class MainActivity : AppCompatActivity() {
         return players
     }
 
-    private fun setUpMatchups(players: List<Player>): List<Matchup>{
+    private fun setUpMatchups(players: List<Player>): Round{
 
         val matchups: MutableList<Matchup> = mutableListOf<Matchup>()
+        val breakers: MutableList<Player> = mutableListOf<Player>()
 
         var counter: Int = 0
         val playersInMatchup: MutableList<Player> = mutableListOf<Player>()
@@ -113,14 +113,17 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
+        for (player in playersInMatchup){
+            breakers.add(player)
+        }
 
-        return matchups
+        return Round(matchups,breakers)
     }
 
     private fun setUpRounds(nrgames: Int): List<Round> {
         val rounds: MutableList<Round> = mutableListOf<Round>()
         for (i in 1..nrgames){
-            rounds.add(Round(setUpMatchups(setUpPlayers())))
+            rounds.add(setUpMatchups(setUpPlayers()))
         }
         return rounds
     }

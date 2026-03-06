@@ -10,6 +10,9 @@
         <item>15</item>
         <item>23</item>
         <item>33</item>
+        <item>35</item>
+        <item>37</item>
+        <item>44</item>
         <item>54</item>
         <item>72</item>
         <item>81</item>
@@ -29,6 +32,9 @@
         <item>Juan</item>
         <item>Karl</item>
         <item>Ludwig</item>
+        <item>Manuel</item>
+        <item>Nero</item>
+        <item>Otto</item>
     </string-array>
 
     <integer-array name="people_lvls">
@@ -43,6 +49,9 @@
         <item>3</item>
         <item>1</item>
         <item>3</item>
+        <item>2</item>
+        <item>2</item>
+        <item>2</item>
         <item>2</item>
     </integer-array>
 

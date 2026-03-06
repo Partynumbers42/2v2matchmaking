@@ -26,16 +26,21 @@ class RoundsAdapter(
         position: Int
     ) {
         val round = rounds[position]
-        holder.bind(round)
+        holder.bind(round,position)
     }
 
     override fun getItemCount() = rounds.size
 
     inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
         val rvMatchups = itemView.findViewById<RecyclerView>(R.id.rvMatchups)
-        fun bind(round: MainActivity.Round) {
+        val tv_round = itemView.findViewById<TextView>(R.id.tv_round)
+        val tv_breakers = itemView.findViewById<TextView>(R.id.tv_breakers)
+
+        fun bind(round: MainActivity.Round,position: Int) {
             rvMatchups.adapter = MatchupsAdapter(context, round.matchups)
             rvMatchups.layoutManager = LinearLayoutManager(context)
+            tv_round.text = "Round ${position+1}"
+            tv_breakers.text = "Breakers: ${round.breakers.joinToString { it.playerName }}"
         }
     }
 }
