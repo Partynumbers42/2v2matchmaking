@@ -7,12 +7,51 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <TextView
+        android:id="@+id/tv_nrgames"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Nr. of Games:"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title" />
+
+    <EditText
+        android:id="@+id/etn_Rounds"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:ems="3"
+        android:inputType="numberDecimal"
+        android:text="0"
+        android:textAlignment="viewEnd"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_nrgames"
+        app:layout_constraintStart_toEndOf="@+id/tv_nrgames"
+        app:layout_constraintTop_toTopOf="@+id/tv_nrgames" />
+
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvNames"
+        android:id="@+id/rvRounds"
         android:layout_width="409dp"
         android:layout_height="729dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_nrgames"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Matchmaking 2v2"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,9 +9,9 @@
         android:layout_width="409dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="5dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="5dp"
+        android:layout_marginBottom="3dp"
         app:cardBackgroundColor="@color/blueBlack"
         app:cardCornerRadius="10dp"
         app:cardElevation="8dp"
@@ -37,14 +37,49 @@
                 app:tint="@color/tanAccent" />
 
             <TextView
+                android:id="@+id/tv_vs"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="vs"
+                android:textColor="@color/tanAccent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_and1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:text="&amp;"
+                android:textColor="@color/tanAccent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/tv_vs"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_and2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="24dp"
+                android:text="&amp;"
+                android:textColor="@color/tanAccent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/tv_vs"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
                 android:id="@+id/tv_player1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="TextView1"
+                android:layout_marginEnd="8dp"
+                android:text="Player1"
                 android:textColor="@color/tanAccent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/iv_icon"
+                app:layout_constraintEnd_toStartOf="@+id/tv_and1"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -52,21 +87,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="TextView2"
+                android:text="Player2"
                 android:textColor="@color/tanAccent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/tv_player1"
+                app:layout_constraintStart_toEndOf="@+id/tv_and1"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/tv_player3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="TextView3"
+                android:layout_marginEnd="8dp"
+                android:text="Player3"
                 android:textColor="@color/tanAccent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/tv_vs"
+                app:layout_constraintEnd_toStartOf="@+id/tv_and2"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -74,21 +109,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="TextView4"
+                android:text="Player4"
                 android:textColor="@color/tanAccent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/tv_player3"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/tv_vs"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="VS"
-                android:textColor="@color/tanAccent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/tv_player2"
+                app:layout_constraintStart_toEndOf="@+id/tv_and2"
                 app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

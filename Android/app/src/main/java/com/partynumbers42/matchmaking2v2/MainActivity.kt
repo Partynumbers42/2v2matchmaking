@@ -12,6 +12,10 @@ class MainActivity : AppCompatActivity() {
 
     data class Player(val playerId: Int, val playerName: String, val playerLevel: Int)
 
+    data class Matchup(val player1: Player, val player2: Player, val player3: Player, val player4: Player)
+
+    //data class MatchupList(val matchups: List<Matchup>)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -24,10 +28,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         val players: List<Player> = setUpPlayers()
-        val rvNames = findViewById<RecyclerView>(R.id.rvNames)
+        val matchups: List<Matchup> = setUpMatchups(players)
+        //val Rounds: List<Matchup> = setUpRounds()
 
-        rvNames.adapter = PlayersAdapter(this, players)
-        rvNames.layoutManager = LinearLayoutManager(this)
+        val rvMatchups = findViewById<RecyclerView>(R.id.rvRounds)
+
+        rvMatchups.adapter = MatchupsAdapter(this, matchups)
+        rvMatchups.layoutManager = LinearLayoutManager(this)
 
     }
 
@@ -41,6 +48,27 @@ class MainActivity : AppCompatActivity() {
             id+=1
         }
         return players
+    }
+
+    private fun setUpMatchups(players: List<Player>): List<Matchup>{
+
+        val matchups: MutableList<Matchup> = mutableListOf<Matchup>()
+
+        var counter: Int = 0
+        val playersInMatchup: MutableList<Player> = mutableListOf<Player>()
+
+        for (player in players){
+            playersInMatchup.add(player)
+            counter+=1
+            if (counter==4) {
+                counter=0
+                matchups.add(Matchup(playersInMatchup[0],playersInMatchup[1],playersInMatchup[2],playersInMatchup[3]))
+                playersInMatchup.clear()
+            }
+
+        }
+
+        return matchups
     }
 
 }
