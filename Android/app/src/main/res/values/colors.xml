@@ -2,4 +2,7 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="blueBlack">#111f28</color>
+    <color name="tanAccent">#e3cdb3</color>
 </resources>
