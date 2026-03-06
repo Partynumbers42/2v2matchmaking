@@ -19,7 +19,7 @@
         app:layout_constraintTop_toBottomOf="@+id/tv_title" />
 
     <EditText
-        android:id="@+id/etn_Rounds"
+        android:id="@+id/et_nrgames"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -53,5 +53,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/b_generate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
+        android:backgroundTint="@color/blueBlack"
+        android:text="Generate Matches"
+        android:textColor="@color/tanAccent"
+        app:layout_constraintBottom_toBottomOf="@+id/et_nrgames"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/et_nrgames"
+        app:layout_constraintTop_toTopOf="@+id/et_nrgames" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

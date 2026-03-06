@@ -1,6 +1,10 @@
 package com.partynumbers42.matchmaking2v2
 
 import android.os.Bundle
+import android.util.Log
+import android.view.View
+import android.widget.Button
+import android.widget.EditText
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -8,11 +12,17 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
+private const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity() {
 
     data class Player(val playerId: Int, val playerName: String, val playerLevel: Int)
-
     data class Matchup(val player1: Player, val player2: Player, val player3: Player, val player4: Player)
+    data class Round(val matchups: List<Matchup>)
+
+    //private lateinit var rvRounds: RecyclerView
+
+    private lateinit var et_nrgames: EditText
+    private lateinit var b_generate: Button
 
     //data class MatchupList(val matchups: List<Matchup>)
 
@@ -27,15 +37,51 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        et_nrgames = findViewById(R.id.et_nrgames)
+        b_generate = findViewById(R.id.b_generate)
+
+        b_generate.setOnClickListener(object: View.OnClickListener{
+            override fun onClick(v: View?) {
+                val nrgames = et_nrgames.text.toString().toInt()
+                Log.i(TAG,"onProgressChanged $nrgames")
+                generateRounds(nrgames)
+            }
+
+        })
+
+        }
+
+    private fun generateRounds(nrgames: Int){
+
+        val rvRounds = findViewById<RecyclerView>(R.id.rvRounds)
+        val rounds: List<Round> = setUpRounds(nrgames)
+
+        if (nrgames>0) {
+            rvRounds.adapter = RoundsAdapter(this, rounds)
+            rvRounds.layoutManager = LinearLayoutManager(this)
+        } else {
+            clearRounds()
+        }
+
+    }
+
+    private fun generateMatchups(): RecyclerView? {
+
+        val rvMatchups = findViewById<RecyclerView>(R.id.rvMatchups)
+
         val players: List<Player> = setUpPlayers()
         val matchups: List<Matchup> = setUpMatchups(players)
-        //val Rounds: List<Matchup> = setUpRounds()
-
-        val rvMatchups = findViewById<RecyclerView>(R.id.rvRounds)
 
         rvMatchups.adapter = MatchupsAdapter(this, matchups)
         rvMatchups.layoutManager = LinearLayoutManager(this)
 
+        return rvMatchups
+
+    }
+
+    private fun clearRounds(){
+        val rvMatchups = findViewById<RecyclerView>(R.id.rvRounds)
+        rvMatchups.adapter = null
     }
 
     private fun setUpPlayers(): List<Player>{
@@ -70,6 +116,15 @@ class MainActivity : AppCompatActivity() {
 
         return matchups
     }
+
+    private fun setUpRounds(nrgames: Int): List<Round> {
+        val rounds: MutableList<Round> = mutableListOf<Round>()
+        for (i in 1..nrgames){
+            rounds.add(Round(setUpMatchups(setUpPlayers())))
+        }
+        return rounds
+    }
+
 
 }
 
