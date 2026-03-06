@@ -1,7 +1,10 @@
 package com.partynumbers42.matchmaking2v2
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -11,6 +14,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.firestore.FirebaseFirestore
 
 private const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity() {
@@ -22,7 +26,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var et_nrgames: EditText
     private lateinit var b_generate: Button
 
-    //data class MatchupList(val matchups: List<Matchup>)
+    private lateinit var firestoreDb: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +37,27 @@ class MainActivity : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+
+        val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
+        if (auth.currentUser == null) {
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
+            return
+        }
+
+        firestoreDb = FirebaseFirestore.getInstance()
+        val usersReference = firestoreDb.collection("users") 
+        usersReference.addSnapshotListener { snapshot, exception ->
+            if (exception != null || snapshot == null) {
+                Log.e(TAG, "listen error", exception)
+                return@addSnapshotListener
+            }
+            for (document in snapshot.documents) {
+                Log.i(TAG, "User ${document.id}: ${document.data}")
+            }
+
         }
 
         et_nrgames = findViewById(R.id.et_nrgames)
@@ -49,7 +74,22 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-    private fun generateRounds(nrgames: Int){
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.menu_profile) {
+            val intent = Intent(this, ProfileActivity::class.java)
+            startActivity(intent)
+        }
+            return super.onOptionsItemSelected(item)
+        }
+
+
+
+        private fun generateRounds(nrgames: Int){
 
         val rvRounds = findViewById<RecyclerView>(R.id.rvRounds)
         val rounds: List<Round> = setUpRounds(nrgames)
