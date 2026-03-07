@@ -14,10 +14,14 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.partynumbers42.matchmaking2v2.models.User
 
 private const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity() {
+
+    private var signedInUser: User? = null
 
     data class Player(val playerId: Int, val playerName: String, val playerLevel: Int)
     data class Matchup(val player1: Player, val player2: Player, val player3: Player, val player4: Player)
@@ -27,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var b_generate: Button
 
     private lateinit var firestoreDb: FirebaseFirestore
+    private lateinit var users: MutableList<User>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +44,9 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
+        users = mutableListOf<User>()
+
+        val auth = FirebaseAuth.getInstance()
         if (auth.currentUser == null) {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
@@ -48,17 +55,38 @@ class MainActivity : AppCompatActivity() {
         }
 
         firestoreDb = FirebaseFirestore.getInstance()
+
+        firestoreDb.collection("users").document(FirebaseAuth.getInstance().currentUser?.uid as String)
+            .get()
+            .addOnSuccessListener { userSnapshot ->
+                signedInUser = userSnapshot.toObject(User::class.java)
+                Log.i(TAG, "signed in user: $signedInUser")
+            }
+            .addOnFailureListener { exception ->
+                Log.i(TAG, "Failure fetching signed in user", exception)
+            }
+
+
+
         val usersReference = firestoreDb.collection("users") 
         usersReference.addSnapshotListener { snapshot, exception ->
             if (exception != null || snapshot == null) {
                 Log.e(TAG, "listen error", exception)
                 return@addSnapshotListener
             }
-            for (document in snapshot.documents) {
-                Log.i(TAG, "User ${document.id}: ${document.data}")
+            val userList = snapshot.toObjects(User::class.java)
+            users.clear()
+            users.addAll(userList)
+
+            // adapter.notifyDataSetChanged() TODO
+
+            for (user in userList) {
+                Log.i(TAG, "User ${user}")
             }
 
         }
+
+        //var playerList = users
 
         et_nrgames = findViewById(R.id.et_nrgames)
         b_generate = findViewById(R.id.b_generate)
@@ -86,8 +114,6 @@ class MainActivity : AppCompatActivity() {
         }
             return super.onOptionsItemSelected(item)
         }
-
-
 
         private fun generateRounds(nrgames: Int){
 

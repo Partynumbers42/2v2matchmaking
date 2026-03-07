@@ -41,6 +41,9 @@ class LoginActivity : AppCompatActivity() {
                 b_login.isEnabled = true
                 if (task.isSuccessful) {
                     Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
+
+                    // Add API Call here with same password etc ??? TODO
+
                     goMainActivity()
                 } else {
                     Log.e("LoginActivity", "signInWithEmailFailed", task.exception)
