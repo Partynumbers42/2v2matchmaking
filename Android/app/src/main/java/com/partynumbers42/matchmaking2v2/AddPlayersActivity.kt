@@ -6,7 +6,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.google.firebase.firestore.FirebaseFirestore
+import com.partynumbers42.matchmaking2v2.models.ActivitiesResponse
 import com.partynumbers42.matchmaking2v2.models.MembersResponse
 import com.partynumbers42.matchmaking2v2.models.Player
 import com.squareup.moshi.Moshi
@@ -26,8 +26,11 @@ private const val TAG = "AddPlayersActivity"
 class AddPlayersActivity : AppCompatActivity() {
 
     private val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
-    private val listAdapter = moshi.adapter<List<MembersResponse>>(
+    private val listAdapterMembers = moshi.adapter<List<MembersResponse>>(
         Types.newParameterizedType(List::class.java, MembersResponse::class.java)
+    )
+    private val listAdapterActivities = moshi.adapter<List<ActivitiesResponse>>(
+        Types.newParameterizedType(List::class.java, ActivitiesResponse::class.java)
     )
 
     private lateinit var members: MutableList<Player>
@@ -51,13 +54,13 @@ class AddPlayersActivity : AppCompatActivity() {
         val client = OkHttpClient()
         val credential = Credentials.basic(username, password);
 
-        val request = Request.Builder()
+        val requestMembers = Request.Builder()
             .url("https://api.holdsport.dk/v1/teams/"+sportmember_id+"/members")
             .header("Accept", "application/json")
             .header("Authorization", credential)
             .build()
 
-        client.newCall(request).enqueue(object : Callback {
+        client.newCall(requestMembers).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e(TAG, "onFailure", e)
                 //e.printStackTrace()
@@ -69,7 +72,7 @@ class AddPlayersActivity : AppCompatActivity() {
                     val bodyString = response.body?.string()
                     Log.i(TAG, bodyString.toString())
 
-                    val membersList = listAdapter.fromJson(bodyString.toString())
+                    val membersList = listAdapterMembers.fromJson(bodyString.toString())
 
                     membersList?.forEach { member ->
                         Log.i(TAG, "Found member: ${member.firstname} ${member.lastname}")
@@ -79,6 +82,40 @@ class AddPlayersActivity : AppCompatActivity() {
                 }
             }
         })
+
+        val requestActivities = Request.Builder()
+            .url("https://api.holdsport.dk/v1/teams/"+sportmember_id+"/activities")
+            .header("Accept", "application/json")
+            .header("Authorization", credential)
+            .build()
+
+        client.newCall(requestActivities).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e(TAG, "onFailure", e)
+                //e.printStackTrace()
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    if (!response.isSuccessful) throw IOException("Unexpected code $response")
+                    val bodyString = response.body?.string()
+                    Log.i(TAG, bodyString.toString())
+
+                    val activitiesList = listAdapterActivities.fromJson(bodyString.toString())
+
+                    activitiesList?.forEach { activity ->
+                        Log.i(TAG, "Found activity: ${activity.name} ${activity.starttime}")
+                        activity.players?.forEach { player ->
+                            Log.i(TAG, "Found player: ${player.name} ${player.statusCode}")
+                        }
+                    }
+
+                    //println(body) // Note: To update UI, you must use runOnUiThread { }
+                }
+            }
+        })
+
+
 
 
         //client.newCall(request).execute().use { response ->
