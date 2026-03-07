@@ -52,4 +52,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation("com.squareup.okhttp3:okhttp:5.3.0")
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
 }

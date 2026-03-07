@@ -14,21 +14,27 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.partynumbers42.matchmaking2v2.models.Club
+import com.partynumbers42.matchmaking2v2.models.Player
 import com.partynumbers42.matchmaking2v2.models.User
 
 private const val TAG = "MainActivity"
+const val EXTRA_SPORTMEMBER_ID = "EXTRA_SPORTMEMBER_ID"
+
 class MainActivity : AppCompatActivity() {
 
-    private var signedInUser: User? = null
+    private var signedInClub: Club? = null
 
-    data class Player(val playerId: Int, val playerName: String, val playerLevel: Int)
+    //data class Player(val playerId: Int, val playerName: String, val playerLevel: Int)
     data class Matchup(val player1: Player, val player2: Player, val player3: Player, val player4: Player)
     data class Round(val matchups: List<Matchup>, val breakers: List<Player>)
 
     private lateinit var et_nrgames: EditText
     private lateinit var b_generate: Button
+    private lateinit var fabAddPlayers: FloatingActionButton
 
     private lateinit var firestoreDb: FirebaseFirestore
     private lateinit var users: MutableList<User>
@@ -56,14 +62,14 @@ class MainActivity : AppCompatActivity() {
 
         firestoreDb = FirebaseFirestore.getInstance()
 
-        firestoreDb.collection("users").document(FirebaseAuth.getInstance().currentUser?.uid as String)
+        firestoreDb.collection("clubs").document(FirebaseAuth.getInstance().currentUser?.uid  as String)
             .get()
             .addOnSuccessListener { userSnapshot ->
-                signedInUser = userSnapshot.toObject(User::class.java)
-                Log.i(TAG, "signed in user: $signedInUser")
+                signedInClub = userSnapshot.toObject(Club::class.java)
+                Log.i(TAG, "signed in club: $signedInClub")
             }
             .addOnFailureListener { exception ->
-                Log.i(TAG, "Failure fetching signed in user", exception)
+                Log.i(TAG, "Failure fetching signed in club", exception)
             }
 
 
@@ -99,6 +105,13 @@ class MainActivity : AppCompatActivity() {
             }
 
         })
+
+        fabAddPlayers = findViewById(R.id.fabAddPlayers)
+        fabAddPlayers.setOnClickListener {
+            val intent = Intent(this, AddPlayersActivity::class.java)
+            intent.putExtra(EXTRA_SPORTMEMBER_ID, signedInClub?.sportmemberId)
+            startActivity(intent)
+        }
 
         }
 
@@ -152,10 +165,10 @@ class MainActivity : AppCompatActivity() {
     private fun setUpPlayers(): List<Player>{
         val players: MutableList<Player> = mutableListOf<Player>()
         val playerNames = resources.getStringArray(R.array.people_names)
-        var id : Int = 1
+        var id : Long = 1
 
         for (playerName in playerNames){
-            players.add(Player(id,playerName,1))
+            players.add(Player(playerName,1,id))
             id+=1
         }
         return players
