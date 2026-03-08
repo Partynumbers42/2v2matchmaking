@@ -72,8 +72,6 @@ class MainActivity : AppCompatActivity() {
                 Log.i(TAG, "Failure fetching signed in club", exception)
             }
 
-
-
         val usersReference = firestoreDb.collection("users") 
         usersReference.addSnapshotListener { snapshot, exception ->
             if (exception != null || snapshot == null) {
@@ -123,6 +121,7 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.menu_profile) {
             val intent = Intent(this, ProfileActivity::class.java)
+            intent.putExtra(EXTRA_SPORTMEMBER_ID, signedInClub?.sportmemberId)
             startActivity(intent)
         }
             return super.onOptionsItemSelected(item)

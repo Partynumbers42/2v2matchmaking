@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.partynumbers42.matchmaking2v2.models.ActivitiesResponse
-import com.partynumbers42.matchmaking2v2.models.MembersResponse
 import com.partynumbers42.matchmaking2v2.models.Player
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
@@ -26,9 +25,6 @@ private const val TAG = "AddPlayersActivity"
 class AddPlayersActivity : AppCompatActivity() {
 
     private val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
-    private val listAdapterMembers = moshi.adapter<List<MembersResponse>>(
-        Types.newParameterizedType(List::class.java, MembersResponse::class.java)
-    )
     private val listAdapterActivities = moshi.adapter<List<ActivitiesResponse>>(
         Types.newParameterizedType(List::class.java, ActivitiesResponse::class.java)
     )
@@ -53,35 +49,6 @@ class AddPlayersActivity : AppCompatActivity() {
 
         val client = OkHttpClient()
         val credential = Credentials.basic(username, password);
-
-        val requestMembers = Request.Builder()
-            .url("https://api.holdsport.dk/v1/teams/"+sportmember_id+"/members")
-            .header("Accept", "application/json")
-            .header("Authorization", credential)
-            .build()
-
-        client.newCall(requestMembers).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Log.e(TAG, "onFailure", e)
-                //e.printStackTrace()
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                response.use {
-                    if (!response.isSuccessful) throw IOException("Unexpected code $response")
-                    val bodyString = response.body?.string()
-                    Log.i(TAG, bodyString.toString())
-
-                    val membersList = listAdapterMembers.fromJson(bodyString.toString())
-
-                    membersList?.forEach { member ->
-                        Log.i(TAG, "Found member: ${member.firstname} ${member.lastname}")
-                    }
-
-                //println(body) // Note: To update UI, you must use runOnUiThread { }
-                }
-            }
-        })
 
         val requestActivities = Request.Builder()
             .url("https://api.holdsport.dk/v1/teams/"+sportmember_id+"/activities")
