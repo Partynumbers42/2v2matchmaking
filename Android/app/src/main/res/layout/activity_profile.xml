@@ -7,26 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".ProfileActivity">
 
-    <View
-        android:id="@+id/divider2"
-        android:layout_width="409dp"
-        android:layout_height="1dp"
-        android:layout_marginTop="8dp"
-        android:background="?android:attr/listDivider"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rv_membersBase" />
-
-    <TextView
-        android:id="@+id/tv_levelmembers"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Members by level:"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/divider2" />
-
     <TextView
         android:id="@+id/tv_allmembers2"
         android:layout_width="wrap_content"
@@ -86,20 +66,15 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_membersBase"
-        android:layout_width="417dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:layout_marginBottom="371dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_allmembers2" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_membersLevelList"
-        android:layout_width="417dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_levelmembers" />
 
     <Button
         android:id="@+id/b_updatelevels"
