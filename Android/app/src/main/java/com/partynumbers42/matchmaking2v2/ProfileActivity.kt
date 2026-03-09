@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -82,6 +83,7 @@ class ProfileActivity : AppCompatActivity() {
                 Log.i(TAG, "signed in club: $signedInClub")
                 Log.i(TAG, "current members: $currentMembers")
                 showMembers(currentMembers)
+                showClubInfo(signedInClub)
             }
             .addOnFailureListener { exception ->
                 Log.i(TAG, "Failure fetching signed in club", exception)
@@ -106,6 +108,16 @@ class ProfileActivity : AppCompatActivity() {
                 }
 
         }
+
+    }
+
+    private fun showClubInfo(signedInClub: Club?) {
+
+        val tv_club_name = findViewById<TextView>(R.id.tv_clubname)
+        val tv_clubid = findViewById<TextView>(R.id.tv_clubid)
+
+        tv_club_name.text = signedInClub?.name
+        tv_clubid.text = "(id:${signedInClub?.sportmemberId.toString()})"
 
     }
 
