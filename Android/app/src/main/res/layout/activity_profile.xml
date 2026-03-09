@@ -34,8 +34,9 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:text="All known members:"
+        android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTextEmailAddress2" />
+        app:layout_constraintTop_toBottomOf="@+id/divider4" />
 
     <TextView
         android:id="@+id/tv_sportmember2"
@@ -72,7 +73,7 @@
         app:layout_constraintTop_toTopOf="@+id/editTextTextEmailAddress2" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/b_updateplayers"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
@@ -87,7 +88,7 @@
         android:id="@+id/rv_membersBase"
         android:layout_width="417dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_allmembers2" />
 
@@ -99,4 +100,27 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_levelmembers" />
+
+    <Button
+        android:id="@+id/b_updatelevels"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:backgroundTint="@color/blueBlack"
+        android:text="Update Levels"
+        android:textColor="@color/tanAccent"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_allmembers2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tv_allmembers2" />
+
+    <View
+        android:id="@+id/divider4"
+        android:layout_width="409dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="4dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextTextEmailAddress2" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

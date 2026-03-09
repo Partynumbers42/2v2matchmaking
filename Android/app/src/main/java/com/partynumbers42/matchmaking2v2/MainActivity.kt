@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        }
+    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
@@ -127,7 +127,7 @@ class MainActivity : AppCompatActivity() {
             return super.onOptionsItemSelected(item)
         }
 
-        private fun generateRounds(nrgames: Int){
+    private fun generateRounds(nrgames: Int){
 
         val rvRounds = findViewById<RecyclerView>(R.id.rvRounds)
         val rounds: List<Round> = setUpRounds(nrgames)
@@ -167,7 +167,7 @@ class MainActivity : AppCompatActivity() {
         var id : Long = 1
 
         for (playerName in playerNames){
-            players.add(Player(playerName,1,id))
+            players.add(Player(playerName,"",1,id))
             id+=1
         }
         return players
