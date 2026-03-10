@@ -13,56 +13,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
-        android:text="All known members:"
-        android:textSize="24sp"
+        android:text="All members:"
+        android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView4" />
-
-    <TextView
-        android:id="@+id/tv_sportmember2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="32dp"
-        android:text="Sportmember Authentification:"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/editTextTextEmailAddress2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="8dp"
-        android:ems="6"
-        android:hint="username"
-        android:inputType="textEmailAddress"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_sportmember2" />
-
-    <EditText
-        android:id="@+id/editTextTextPassword2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:ems="6"
-        android:hint="password"
-        android:inputType="textPassword"
-        app:layout_constraintBottom_toBottomOf="@+id/editTextTextEmailAddress2"
-        app:layout_constraintStart_toEndOf="@+id/editTextTextEmailAddress2"
-        app:layout_constraintTop_toTopOf="@+id/editTextTextEmailAddress2" />
-
-    <Button
-        android:id="@+id/b_updateplayers"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:backgroundTint="@color/blueBlack"
-        android:text="Update Players"
-        android:textColor="@color/tanAccent"
-        app:layout_constraintBottom_toBottomOf="@+id/editTextTextPassword2"
-        app:layout_constraintStart_toEndOf="@+id/editTextTextPassword2"
-        app:layout_constraintTop_toTopOf="@+id/editTextTextPassword2" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_membersBase"
@@ -88,26 +42,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_allmembers2" />
 
-    <View
-        android:id="@+id/divider4"
-        android:layout_width="409dp"
-        android:layout_height="1dp"
-        android:layout_marginTop="4dp"
-        android:background="?android:attr/listDivider"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTextEmailAddress2" />
-
     <TextView
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="32dp"
         android:text="Club: "
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/divider4" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tv_clubname"

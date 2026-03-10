@@ -1,7 +1,12 @@
 package com.partynumbers42.matchmaking2v2
 
+import android.util.Log
+import android.widget.Toast
+import android.content.Context
 import com.partynumbers42.matchmaking2v2.models.Club
 import com.partynumbers42.matchmaking2v2.models.Player
+
+private const val TAG = "AppState"
 
 object AppState {
     var signedInClub: Club? = null
@@ -10,4 +15,57 @@ object AppState {
     var currentClubMembersIds: MutableList<Long> = mutableListOf<Long>()
     var currentParticipants: MutableList<Player> = mutableListOf<Player>()
     var nonParticipants: MutableList<Player> = mutableListOf<Player>()
+
+    fun fetchAndPushMembers(context: Context,onComplete: (Boolean) -> Unit) {
+
+        Log.i(TAG,"Fetching members from Sportmember ...")
+
+        SportmemberRepository.fetchMembers( onComplete = { players ->
+            // update current members
+            updateCurrentMembers(players)
+            // update firebase database
+            FirebaseRepository.saveCurrentMembers(context) { success ->
+                onComplete(success)
+            }
+        },
+            onError = { exception ->
+                onComplete(false)
+            })
+    }
+
+    private fun updateCurrentMembers(players: List<Player>) {
+
+        Log.i(TAG,"Updating database ...")
+
+        players?.forEach { player ->
+            if (!currentClubMembersIds.contains(player.sportmemberUserId)) {
+                // add new players
+                currentClubMembers.add(player)
+                currentClubMembersIds.add(player.sportmemberUserId)
+                Log.i(TAG, "Added new member: ${player.firstname} ${player.lastname}")
+            } else {
+                // update name changes from Sportmember
+                val member = currentClubMembers.find { it.sportmemberUserId == player.sportmemberUserId }
+                if (member?.firstname != player.firstname || member?.lastname != player.lastname  ) {
+                    member?.firstname = player.firstname
+                    member?.lastname = player.lastname
+                    Log.i(TAG, "Updated member name: ${member?.firstname} ${member?.lastname}")
+                }
+            }
+
+        }
+
+        val playerIds = mutableListOf<Long>()
+        players.forEach { player ->
+            playerIds.add(player.sportmemberUserId)
+        }
+
+        currentClubMembers.removeAll { member ->
+            !playerIds.contains(member.sportmemberUserId)
+        }
+
+    }
+
+
+
 }

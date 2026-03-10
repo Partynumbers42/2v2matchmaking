@@ -32,11 +32,6 @@ class AddPlayersActivity : AppCompatActivity() {
         showParticipatingMembers(AppState.currentParticipants)
         showNonParticipatingMembers(nonParticipants)
 
-        val b_updateactivities = findViewById<Button>(R.id.b_updateactivities)
-        b_updateactivities.setOnClickListener {
-            //handlePullParticipants()
-        }
-
     }
 
 

@@ -1,6 +1,7 @@
 package com.partynumbers42.matchmaking2v2
 
 import android.util.Log
+import android.widget.Toast
 import com.partynumbers42.matchmaking2v2.models.ActivitiesResponse
 import com.partynumbers42.matchmaking2v2.models.Activity
 import com.partynumbers42.matchmaking2v2.models.MembersResponse
@@ -115,5 +116,27 @@ object SportmemberRepository {
         })
 
     }
+
+    fun fetchParticipants(onComplete: (Boolean) -> Unit) {
+        fetchActivities(onComplete = { activities ->
+            val activity = activities.firstOrNull()
+            Log.i(TAG, "Next activity: ${activity?.name}")
+            val players = activity?.players
+
+            AppState.currentParticipants = players as MutableList<Player>
+            AppState.nonParticipants = AppState.currentClubMembers.filter { !AppState.currentParticipants.contains(it) }.toMutableList()
+
+            for (player in AppState.currentParticipants){
+                Log.i(TAG, "Found participant: ${player.firstname} ${player.lastname}")
+            }
+            onComplete(true)
+        },
+            onError = { exception ->
+                Log.i(TAG, "Failure fetching participants", exception)
+                onComplete(false)
+            })
+
+    }
+
 
 }
