@@ -22,9 +22,6 @@ private const val TAG = "ProfileActivity"
 
 class ProfileActivity : AppCompatActivity() {
 
-    private lateinit var currentMembersIds: MutableList<Long>
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -39,17 +36,6 @@ class ProfileActivity : AppCompatActivity() {
 
         showMembers(AppState.currentClubMembers)
         showClubInfo(AppState.signedInClub)
-
-        //currentMembers = mutableListOf<Player>()
-        currentMembersIds = mutableListOf<Long>()
-        AppState.currentClubMembers.forEach { member ->
-            currentMembersIds.add(member.sportmemberUserId)
-        }
-
-        val b_updateplayers = findViewById<Button>(R.id.b_updateplayers)
-        b_updateplayers.setOnClickListener {
-            handleUpdatePlayers()
-        }
 
         val b_updatelevels = findViewById<Button>(R.id.b_updatelevels)
         b_updatelevels.setOnClickListener {
@@ -74,79 +60,6 @@ class ProfileActivity : AppCompatActivity() {
 
         tv_club_name.text = signedInClub?.name
         tv_clubid.text = "(id:${signedInClub?.sportmemberId.toString()})"
-
-    }
-
-    private fun handleUpdatePlayers() {
-        if (AppState.signedInClub == null) {
-            Toast.makeText(this, "No signed in club, please wait", Toast.LENGTH_SHORT).show()
-            Log.e(TAG, "No signed in club")
-            return
-        }
-
-        Log.i(TAG,"Starting updating database ...")
-
-        SportmemberRepository.fetchMembers( onComplete = { players ->
-
-            runOnUiThread {
-                Toast.makeText(this, "Found ${players.size} players on Sportmember", Toast.LENGTH_SHORT).show()
-
-                // update current members
-                updateCurrentMembers(players)
-
-                // update firebase database
-                FirebaseRepository.saveCurrentMembers(this) { success ->
-                    if (success) {
-                        Toast.makeText(this, "Database updated!", Toast.LENGTH_SHORT).show()
-                        showMembers(AppState.currentClubMembers)
-                    } else {
-                        Toast.makeText(this, "Failed to update Database", Toast.LENGTH_SHORT).show()
-                    }
-                }
-
-                showMembers(AppState.currentClubMembers)
-
-            }
-
-        },
-            onError = { exception ->
-                runOnUiThread {
-                    Toast.makeText(this, "Failed to fetch players from Sportmember", Toast.LENGTH_SHORT).show()
-                }
-        })
-
-    }
-
-    private fun updateCurrentMembers(players: List<Player>) {
-
-        Log.i(TAG,"Updating database ...")
-
-        players?.forEach { player ->
-            if (!currentMembersIds.contains(player.sportmemberUserId)) {
-                // add new players
-                AppState.currentClubMembers.add(player)
-                currentMembersIds.add(player.sportmemberUserId)
-                Log.i(TAG, "Added new member: ${player.firstname} ${player.lastname}")
-            } else {
-                // update name changes from Sportmember
-                val member = AppState.currentClubMembers.find { it.sportmemberUserId == player.sportmemberUserId }
-                if (member?.firstname != player.firstname || member?.lastname != player.lastname  ) {
-                    member?.firstname = player.firstname
-                    member?.lastname = player.lastname
-                    Log.i(TAG, "Updated member name: ${member?.firstname} ${member?.lastname}")
-                }
-            }
-
-        }
-
-        val playerIds = mutableListOf<Long>()
-        players.forEach { player ->
-            playerIds.add(player.sportmemberUserId)
-        }
-
-        AppState.currentClubMembers.removeAll { member ->
-            !playerIds.contains(member.sportmemberUserId)
-        }
 
     }
 

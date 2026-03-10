@@ -43,6 +43,9 @@ object FirebaseRepository {
                 AppState.signedInClub?.members?.let {
                     AppState.currentClubMembers = it.toMutableList()
                 }
+                AppState.currentClubMembers.forEach { member ->
+                    AppState.currentClubMembersIds.add(member.sportmemberUserId)
+                }
                 Log.i(TAG, "current members: ${AppState.currentClubMembers}")
 
                 // Load Sportmember username and password
