@@ -12,6 +12,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -19,16 +20,13 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.partynumbers42.matchmaking2v2.models.Club
 import com.partynumbers42.matchmaking2v2.models.Player
-import com.partynumbers42.matchmaking2v2.models.User
 
 private const val TAG = "MainActivity"
-const val EXTRA_SPORTMEMBER_ID = "EXTRA_SPORTMEMBER_ID"
+
+private var isDataLoaded = false
 
 class MainActivity : AppCompatActivity() {
 
-    private var signedInClub: Club? = null
-
-    //data class Player(val playerId: Int, val playerName: String, val playerLevel: Int)
     data class Matchup(val player1: Player, val player2: Player, val player3: Player, val player4: Player)
     data class Round(val matchups: List<Matchup>, val breakers: List<Player>)
 
@@ -37,9 +35,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var fabAddPlayers: FloatingActionButton
 
     private lateinit var firestoreDb: FirebaseFirestore
-    private lateinit var users: MutableList<User>
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
@@ -50,82 +48,104 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        users = mutableListOf<User>()
+        et_nrgames = findViewById(R.id.et_nrgames)
+        b_generate = findViewById(R.id.b_generate)
+        fabAddPlayers = findViewById(R.id.fabAddPlayers)
 
-        val auth = FirebaseAuth.getInstance()
-        if (auth.currentUser == null) {
+        // buttons only enabled when firebase is successful
+        b_generate.isEnabled = false
+        fabAddPlayers.isEnabled = false
+
+        val firebaseAuth = FirebaseAuth.getInstance()
+        if (firebaseAuth.currentUser == null) {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
             finish()
             return
         }
 
+        AppState.signedInClubFirebaseIdString = firebaseAuth.currentUser?.uid as String
+
         firestoreDb = FirebaseFirestore.getInstance()
 
-        firestoreDb.collection("clubs").document(FirebaseAuth.getInstance().currentUser?.uid  as String)
+        firestoreDb.collection("clubs").document(AppState.signedInClubFirebaseIdString)
             .get()
             .addOnSuccessListener { userSnapshot ->
-                signedInClub = userSnapshot.toObject(Club::class.java)
-                Log.i(TAG, "signed in club: $signedInClub")
+                AppState.signedInClub  = userSnapshot.toObject(Club::class.java)
+                Log.i(TAG, "signed in club: ${AppState.signedInClub}")
+                AppState.signedInClubSportmemberId = AppState.signedInClub?.sportmemberId as Long
+                Log.i(TAG, "signed in club id: ${AppState.signedInClubSportmemberId}")
+                AppState.signedInClub?.members?.let {
+                    AppState.currentClubMembers = it.toMutableList()
+                }
+                Log.i(TAG, "current members: ${AppState.currentClubMembers}")
+
+                isDataLoaded = true
+                invalidateOptionsMenu()
+
+                b_generate.isEnabled = true
+                fabAddPlayers.isEnabled = true
+
             }
             .addOnFailureListener { exception ->
                 Log.i(TAG, "Failure fetching signed in club", exception)
             }
 
-        val usersReference = firestoreDb.collection("users") 
-        usersReference.addSnapshotListener { snapshot, exception ->
-            if (exception != null || snapshot == null) {
-                Log.e(TAG, "listen error", exception)
-                return@addSnapshotListener
-            }
-            val userList = snapshot.toObjects(User::class.java)
-            users.clear()
-            users.addAll(userList)
+        et_nrgames.setText("0")
 
-            // adapter.notifyDataSetChanged() TODO
+        b_generate.setOnClickListener {
 
-            for (user in userList) {
-                Log.i(TAG, "User ${user}")
-            }
-
+            val nrgamesString = et_nrgames.text.toString()
+            val nrgames = if (nrgamesString.isNotEmpty()) nrgamesString.toInt() else 0
+            Log.i(TAG,"onProgressChanged $nrgames")
+            generateRounds(nrgames)
         }
 
-        //var playerList = users
-
-        et_nrgames = findViewById(R.id.et_nrgames)
-        b_generate = findViewById(R.id.b_generate)
-
-        b_generate.setOnClickListener(object: View.OnClickListener{
-            override fun onClick(v: View?) {
-                val nrgames = et_nrgames.text.toString().toInt()
-                Log.i(TAG,"onProgressChanged $nrgames")
-                generateRounds(nrgames)
-            }
-
-        })
-
-        fabAddPlayers = findViewById(R.id.fabAddPlayers)
         fabAddPlayers.setOnClickListener {
             val intent = Intent(this, AddPlayersActivity::class.java)
-            intent.putExtra(EXTRA_SPORTMEMBER_ID, signedInClub?.sportmemberId)
             startActivity(intent)
         }
+
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (isDataLoaded) {
+            showParticipatingMembers(AppState.currentParticipants)
+        }
+        Log.i(TAG, "onStart: Refreshing UI with ${AppState.currentParticipants.size} participants")
+    }
+
+    private fun showParticipatingMembers(currentParticipants: MutableList<Player>) {
+
+        val rv_participants = findViewById<RecyclerView>(R.id.rvplayers)
+
+        rv_participants.adapter = SmallPlayersAdapter(this, currentParticipants)
+        rv_participants.layoutManager = GridLayoutManager(this,3)
 
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
-        return super.onCreateOptionsMenu(menu)
+        return true
     }
+
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        //enable only if data is loaded
+        val profileItem = menu?.findItem(R.id.menu_profile)
+        profileItem?.isEnabled = isDataLoaded
+        return super.onPrepareOptionsMenu(menu)
+    }
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.menu_profile) {
             val intent = Intent(this, ProfileActivity::class.java)
-            intent.putExtra(EXTRA_SPORTMEMBER_ID, signedInClub?.sportmemberId)
             startActivity(intent)
         }
             return super.onOptionsItemSelected(item)
         }
+
 
     private fun generateRounds(nrgames: Int){
 
@@ -141,36 +161,10 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun generateMatchups(): RecyclerView? {
-
-        val rvMatchups = findViewById<RecyclerView>(R.id.rvMatchups)
-
-        val players: List<Player> = setUpPlayers()
-        val round: Round = setUpMatchups(players)
-        val matchups: List<Matchup> = round.matchups
-
-        rvMatchups.adapter = MatchupsAdapter(this, matchups)
-        rvMatchups.layoutManager = LinearLayoutManager(this)
-
-        return rvMatchups
-
-    }
 
     private fun clearRounds(){
         val rvMatchups = findViewById<RecyclerView>(R.id.rvRounds)
         rvMatchups.adapter = null
-    }
-
-    private fun setUpPlayers(): List<Player>{
-        val players: MutableList<Player> = mutableListOf<Player>()
-        val playerNames = resources.getStringArray(R.array.people_names)
-        var id : Long = 1
-
-        for (playerName in playerNames){
-            players.add(Player(playerName,"",1,id))
-            id+=1
-        }
-        return players
     }
 
     private fun setUpMatchups(players: List<Player>): Round{
@@ -201,7 +195,7 @@ class MainActivity : AppCompatActivity() {
     private fun setUpRounds(nrgames: Int): List<Round> {
         val rounds: MutableList<Round> = mutableListOf<Round>()
         for (i in 1..nrgames){
-            rounds.add(setUpMatchups(setUpPlayers()))
+            rounds.add(setUpMatchups(AppState.currentParticipants))
         }
         return rounds
     }

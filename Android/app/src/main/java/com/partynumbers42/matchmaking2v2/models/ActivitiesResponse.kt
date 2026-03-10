@@ -9,8 +9,5 @@ public data class ActivitiesResponse(
     val name: String,
     val starttime: String,
     val endtime: String,
-    //val status: Int,
-    //@Json(name = 'max_attendees') val maxAttendees: Int,
     @Json(name = "activities_users") val players: List<PlayerResponse>,
-    //val event_type: String,
 )

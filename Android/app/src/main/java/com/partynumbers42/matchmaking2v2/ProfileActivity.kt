@@ -33,7 +33,6 @@ import java.io.IOException
 private const val TAG = "ProfileActivity"
 
 class ProfileActivity : AppCompatActivity() {
-    private var signedInClub: Club? = null
     private val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
 
     private val listAdapterMembers = moshi.adapter<List<MembersResponse>>(
@@ -41,23 +40,20 @@ class ProfileActivity : AppCompatActivity() {
     )
 
     private lateinit var firestoreDb: FirebaseFirestore
-    private lateinit var currentMembers: MutableList<Player>
-    //private lateinit var updatedMembers: MutableList<Player>
     private lateinit var currentMembersIds: MutableList<Long>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_profile)
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
-        currentMembers = mutableListOf<Player>()
-        currentMembersIds = mutableListOf<Long>()
 
         val auth = FirebaseAuth.getInstance()
         if (auth.currentUser == null) {
@@ -67,27 +63,16 @@ class ProfileActivity : AppCompatActivity() {
             return
         }
 
-        firestoreDb = FirebaseFirestore.getInstance()
+        showMembers(AppState.currentClubMembers)
+        showClubInfo(AppState.signedInClub)
 
-        val clubReference = firestoreDb.collection("clubs")
-        clubReference.document(FirebaseAuth.getInstance().currentUser?.uid as String)
-            .get()
-            .addOnSuccessListener { clubSnapshot ->
-                signedInClub = clubSnapshot.toObject(Club::class.java)
-                signedInClub?.members?.let {
-                    currentMembers = it.toMutableList()
-                }
-                currentMembers.forEach { member ->
-                    currentMembersIds.add(member.sportmemberUserId)
-                }
-                Log.i(TAG, "signed in club: $signedInClub")
-                Log.i(TAG, "current members: $currentMembers")
-                showMembers(currentMembers)
-                showClubInfo(signedInClub)
-            }
-            .addOnFailureListener { exception ->
-                Log.i(TAG, "Failure fetching signed in club", exception)
-            }
+        //currentMembers = mutableListOf<Player>()
+        currentMembersIds = mutableListOf<Long>()
+        AppState.currentClubMembers.forEach { member ->
+            currentMembersIds.add(member.sportmemberUserId)
+        }
+
+        firestoreDb = FirebaseFirestore.getInstance()
 
         val b_updateplayers = findViewById<Button>(R.id.b_updateplayers)
         b_updateplayers.setOnClickListener {
@@ -97,8 +82,8 @@ class ProfileActivity : AppCompatActivity() {
         val b_updatelevels = findViewById<Button>(R.id.b_updatelevels)
         b_updatelevels.setOnClickListener {
 
-            firestoreDb.collection("clubs").document(FirebaseAuth.getInstance().currentUser?.uid as String)
-                .update("members", currentMembers)
+            firestoreDb.collection("clubs").document(AppState.signedInClubFirebaseIdString)
+                .update("members", AppState.currentClubMembers)
                 .addOnSuccessListener {
                     Log.i(TAG, "Database updated")
                     Toast.makeText(this, "Levels updated", Toast.LENGTH_SHORT).show()
@@ -122,7 +107,7 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun handleUpdatePlayers() { // View.OnClickListener?
-        if (signedInClub == null) {
+        if (AppState.signedInClub == null) {
             Toast.makeText(this, "No signed in club, please wait", Toast.LENGTH_SHORT).show()
             Log.e(TAG, "No signed in club")
             return
@@ -141,12 +126,12 @@ class ProfileActivity : AppCompatActivity() {
             players?.forEach { player ->
                 if (!currentMembersIds.contains(player.sportmemberUserId)) {
                     // add new players
-                    currentMembers.add(player)
+                    AppState.currentClubMembers.add(player)
                     currentMembersIds.add(player.sportmemberUserId)
                     Log.i(TAG, "Added new member: ${player.firstname} ${player.lastname}")
                 } else {
-                    // update name changes from playerzone
-                    val member = currentMembers.find { it.sportmemberUserId == player.sportmemberUserId }
+                    // update name changes from Sportmember
+                    val member = AppState.currentClubMembers.find { it.sportmemberUserId == player.sportmemberUserId }
                     if (member?.firstname != player.firstname || member?.lastname != player.lastname  ) {
                         member?.firstname = player.firstname
                         member?.lastname = player.lastname
@@ -156,17 +141,29 @@ class ProfileActivity : AppCompatActivity() {
 
             }
 
-            firestoreDb.collection("clubs").document(FirebaseAuth.getInstance().currentUser?.uid as String)
-                .update("members", currentMembers)
+            val playerIds = mutableListOf<Long>()
+            players.forEach { player ->
+                playerIds.add(player.sportmemberUserId)
+            }
+
+            AppState.currentClubMembers.removeAll { member ->
+                !playerIds.contains(member.sportmemberUserId)
+            }
+
+            firestoreDb.collection("clubs").document(AppState.signedInClubFirebaseIdString)
+                .update("members", AppState.currentClubMembers)
                 .addOnSuccessListener {
                     Log.i(TAG, "Database updated")
                 }
                 .addOnFailureListener { exception ->
                     Log.i(TAG, "Failure updating database", exception)
                 }
-        }
 
-        showMembers(currentMembers)
+            runOnUiThread {
+                showMembers(AppState.currentClubMembers)
+            }
+
+        }
 
     }
 
@@ -199,7 +196,8 @@ class ProfileActivity : AppCompatActivity() {
 
 
     private fun pullMembersSportmember(onComplete: (List<Player>) -> Unit) {
-        val sportmember_id = signedInClub?.sportmemberId
+
+        val sportmember_id = AppState.signedInClubSportmemberId
         val username = resources.getString(R.string.sportmember_user) // update to user entry
         val password = resources.getString(R.string.sportmember_password) //update to user entry
 
@@ -217,7 +215,6 @@ class ProfileActivity : AppCompatActivity() {
         client.newCall(requestMembers).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e(TAG, "onFailure", e)
-                //e.printStackTrace()
             }
 
             override fun onResponse(call: Call, response: Response) {
@@ -225,14 +222,14 @@ class ProfileActivity : AppCompatActivity() {
                     if (!response.isSuccessful) throw IOException("Unexpected code $response")
 
                     val bodyString = response.body?.string()
-                    Log.i(TAG, bodyString.toString())
+                    //Log.i(TAG, bodyString.toString())
                     apiMembersResult = listAdapterMembers.fromJson(bodyString.toString())
 
                     runOnUiThread {
                         val membersCurrentCall = mutableListOf<Player>()
                         apiMembersResult?.forEach { member ->
                             membersCurrentCall.add(Player(member.firstname, member.lastname,0,member.id))
-                            //Log.i(TAG, "Found member: ${member.firstname} ${member.lastname}")
+                            Log.i(TAG, "Found member: ${member.firstname} ${member.lastname} ${member.id}")
                         }
                         onComplete(membersCurrentCall)
                     }
