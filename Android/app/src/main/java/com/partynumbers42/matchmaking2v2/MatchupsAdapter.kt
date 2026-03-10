@@ -38,10 +38,10 @@ class MatchupsAdapter(
         val tv_player4 = itemView.findViewById<TextView>(R.id.tv_player4)
 
         fun bind(matchup: MainActivity.Matchup) {
-            tv_player1.text = matchup.player1.firstname
-            tv_player2.text = matchup.player2.firstname
-            tv_player3.text = matchup.player3.firstname
-            tv_player4.text = matchup.player4.firstname
+            tv_player1.text = matchup.player1.firstname.split(" ").first() + " " + matchup.player1.lastname.first() + "."
+            tv_player2.text = matchup.player2.firstname.split(" ").first() + " " + matchup.player2.lastname.first() + "."
+            tv_player3.text = matchup.player3.firstname.split(" ").first() + " " + matchup.player3.lastname.first() + "."
+            tv_player4.text = matchup.player4.firstname.split(" ").first() + " " + matchup.player4.lastname.first() + "."
         }
 
     }

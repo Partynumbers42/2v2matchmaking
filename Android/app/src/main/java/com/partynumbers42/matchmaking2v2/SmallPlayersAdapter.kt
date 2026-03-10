@@ -46,7 +46,6 @@ class SmallPlayersAdapter(
 
             tv_playername.text = player.firstname.split(" ").first() + " " + player.lastname.first() + "."
 
-
         }
 
     }
