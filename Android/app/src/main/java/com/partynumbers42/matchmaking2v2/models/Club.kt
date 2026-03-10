@@ -5,5 +5,7 @@ import com.google.firebase.firestore.PropertyName
 public data class Club(
     var name: String = "",
     @get:PropertyName("sportmember_id") @set:PropertyName("sportmember_id") var sportmemberId: Long = 1,
-    var members: MutableList<Player> = mutableListOf<Player>()
+    var members: MutableList<Player> = mutableListOf<Player>(),
+    @get:PropertyName("sportmember_username") @set:PropertyName("sportmember_username") var sportmemberUsername: String = "",
+    @get:PropertyName("sportmember_password") @set:PropertyName("sportmember_password") var sportmemberPassword: String = "",
 )

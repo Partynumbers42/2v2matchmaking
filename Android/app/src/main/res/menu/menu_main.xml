@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/menu_profile"
-        android:icon="@drawable/outline_account_circle_24"
+        android:icon="@drawable/outline_account_circle_24_blueblack"
         android:title="Profile"
         app:showAsAction="always" />
 </menu>

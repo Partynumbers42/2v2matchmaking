@@ -17,9 +17,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.partynumbers42.matchmaking2v2.models.Club
 import com.partynumbers42.matchmaking2v2.models.Player
 
 private const val TAG = "MainActivity"
@@ -35,7 +32,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var b_generate: Button
     private lateinit var fabAddPlayers: FloatingActionButton
 
-    private lateinit var firestoreDb: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -57,40 +53,16 @@ class MainActivity : AppCompatActivity() {
         b_generate.isEnabled = false
         fabAddPlayers.isEnabled = false
 
-        val firebaseAuth = FirebaseAuth.getInstance()
-        if (firebaseAuth.currentUser == null) {
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
-            finish()
-            return
-        }
-
-        AppState.signedInClubFirebaseIdString = firebaseAuth.currentUser?.uid as String
-
-        firestoreDb = FirebaseFirestore.getInstance()
-
-        firestoreDb.collection("clubs").document(AppState.signedInClubFirebaseIdString)
-            .get()
-            .addOnSuccessListener { userSnapshot ->
-                AppState.signedInClub  = userSnapshot.toObject(Club::class.java)
-                Log.i(TAG, "signed in club: ${AppState.signedInClub}")
-                AppState.signedInClubSportmemberId = AppState.signedInClub?.sportmemberId as Long
-                Log.i(TAG, "signed in club id: ${AppState.signedInClubSportmemberId}")
-                AppState.signedInClub?.members?.let {
-                    AppState.currentClubMembers = it.toMutableList()
-                }
-                Log.i(TAG, "current members: ${AppState.currentClubMembers}")
-
+        FirebaseRepository.fetchSignedInClub(this) { success ->
+            if (success) {
                 isDataLoaded = true
                 invalidateOptionsMenu()
-
                 b_generate.isEnabled = true
                 fabAddPlayers.isEnabled = true
-
+            } else {
+                Toast.makeText(this, "Failed to load club data", Toast.LENGTH_SHORT).show()
             }
-            .addOnFailureListener { exception ->
-                Log.i(TAG, "Failure fetching signed in club", exception)
-            }
+        }
 
         et_nrgames.setText("0")
 
@@ -205,6 +177,8 @@ class MainActivity : AppCompatActivity() {
         }
         return rounds
     }
+
+
 
 
 }
