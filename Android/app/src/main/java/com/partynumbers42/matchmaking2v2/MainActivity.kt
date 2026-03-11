@@ -2,12 +2,15 @@ package com.partynumbers42.matchmaking2v2
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +21,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.partynumbers42.matchmaking2v2.models.Player
+import kotlin.random.Random
+import androidx.core.view.isVisible
 
 private const val TAG = "MainActivity"
 
@@ -29,6 +34,9 @@ class MainActivity : AppCompatActivity() {
     data class Round(val matchups: List<Matchup>, val breakers: List<Player>)
     private lateinit var et_nrgames: EditText
     private lateinit var b_generate: Button
+    private lateinit var b_seed: Button
+    private lateinit var et_seed: EditText
+    private lateinit var tv_seed: TextView
     private lateinit var fabAddPlayers: FloatingActionButton
 
 
@@ -48,9 +56,17 @@ class MainActivity : AppCompatActivity() {
         b_generate = findViewById(R.id.b_generate)
         fabAddPlayers = findViewById(R.id.fabAddPlayers)
 
+        b_seed = findViewById(R.id.bu_seed)
+        et_seed = findViewById(R.id.et_seed)
+        tv_seed = findViewById(R.id.tv_seed)
+        et_seed.visibility = View.GONE
+        tv_seed.visibility = View.GONE
+
         // buttons only enabled when firebase is successful
         b_generate.isEnabled = false
         fabAddPlayers.isEnabled = false
+        b_seed.isEnabled = false
+        et_seed.isEnabled = false
 
         // Fetch data from Firebase
         FirebaseRepository.fetchSignedInClub(this) { success ->
@@ -81,11 +97,15 @@ class MainActivity : AppCompatActivity() {
                         invalidateOptionsMenu()
                         b_generate.isEnabled = true
                         fabAddPlayers.isEnabled = true
+                        b_seed.isEnabled = true
+                        et_seed.isEnabled = true
                         showParticipatingMembers(AppState.currentParticipants)
                     }
                 }
             }
         }
+
+        AppState.seed = System.currentTimeMillis()
 
         et_nrgames.setText("0")
         b_generate.setOnClickListener {
@@ -100,6 +120,29 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Add participants first", Toast.LENGTH_SHORT).show()
             }
         }
+
+        b_seed.setOnClickListener {
+            if (tv_seed.isVisible) {
+                tv_seed.visibility = View.GONE
+                et_seed.visibility = View.GONE
+            } else {
+                tv_seed.visibility = View.VISIBLE
+                et_seed.visibility = View.VISIBLE
+                et_seed.setText(AppState.seed.toString())
+            }
+        }
+
+        et_seed.addTextChangedListener(object: TextWatcher {
+            override fun afterTextChanged(p0: Editable?) {}
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                val seedString = et_seed.text.toString()
+                if (seedString.isNotEmpty()) {
+                    AppState.seed = seedString.toLong()
+                }
+            }
+        })
 
         fabAddPlayers.setOnClickListener {
             val intent = Intent(this, AddPlayersActivity::class.java)
@@ -161,7 +204,6 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-
     private fun clearRounds(){
         val rvMatchups = findViewById<RecyclerView>(R.id.rvRounds)
         rvMatchups.adapter = null
@@ -169,13 +211,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun setUpMatchups(players: List<Player>): Round{
 
+        val randomizer = java.util.Random(AppState.seed)
+        val players_ordered = players.shuffled(randomizer)
+        
         val matchups: MutableList<Matchup> = mutableListOf<Matchup>()
         val breakers: MutableList<Player> = mutableListOf<Player>()
 
         var counter: Int = 0
         val playersInMatchup: MutableList<Player> = mutableListOf<Player>()
 
-        for (player in players){
+        for (player in players_ordered){
             playersInMatchup.add(player)
             counter+=1
             if (counter==4) {
@@ -202,4 +247,3 @@ class MainActivity : AppCompatActivity() {
 
 
 }
-

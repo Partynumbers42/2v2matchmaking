@@ -9,6 +9,7 @@ import com.partynumbers42.matchmaking2v2.models.Player
 private const val TAG = "AppState"
 
 object AppState {
+    var seed: Long = 0
     var signedInClub: Club? = null
     var signedInClubFirebaseIdString: String = ""
     var currentClubMembers: MutableList<Player> = mutableListOf<Player>()
