@@ -16,7 +16,6 @@ import com.partynumbers42.matchmaking2v2.models.Player
 private const val TAG = "AddPlayersActivity"
 
 class AddPlayersActivity : AppCompatActivity() {
-    private var nonParticipants: MutableList<Player> = AppState.currentClubMembers
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -29,27 +28,54 @@ class AddPlayersActivity : AppCompatActivity() {
             insets
         }
 
-        showParticipatingMembers(AppState.currentParticipants)
-        showNonParticipatingMembers(nonParticipants)
+        showParticipatingMembers()
+        showNonParticipatingMembers()
+
+        val button = findViewById<Button>(R.id.button)
+        button.setOnClickListener {
+            SportmemberRepository.fetchParticipants { success ->
+                if (!success) {
+                    runOnUiThread {
+                        Toast.makeText(this, "Failed to load participants", Toast.LENGTH_SHORT).show()
+                    }
+                    return@fetchParticipants
+                }
+                runOnUiThread {
+                    showParticipatingMembers()
+                    showNonParticipatingMembers()
+                }
+
+            }
+        }
 
     }
 
-
-
-    private fun showParticipatingMembers(currentParticipants: MutableList<Player>) {
+    private fun showParticipatingMembers() {
 
         val rv_participants = findViewById<RecyclerView>(R.id.rv_participants)
+        val participantsAdapter = SmallPlayersAdapter(this, AppState.currentParticipants, true) { player ->
+            AppState.currentParticipants.remove(player)
+            AppState.nonParticipants.add(player)
+            showParticipatingMembers()
+            showNonParticipatingMembers()
+        }
 
-        rv_participants.adapter = SmallPlayersAdapter(this, currentParticipants) // change the whole SmallPlayerAdapter into a button???
+        rv_participants.adapter = participantsAdapter
         rv_participants.layoutManager = GridLayoutManager(this, 4)
 
     }
 
-    private fun showNonParticipatingMembers(nonParticipants: MutableList<Player>) {
+    private fun showNonParticipatingMembers() {
 
         val rv_members = findViewById<RecyclerView>(R.id.rv_members)
+        val nonParticipantsAdapter = SmallPlayersAdapter(this, AppState.nonParticipants, true) { player ->
+            AppState.nonParticipants.remove(player)
+            AppState.currentParticipants.add(player)
+            showParticipatingMembers()
+            showNonParticipatingMembers()
+        }
 
-        rv_members.adapter = SmallPlayersAdapter(this, nonParticipants)
+        rv_members.adapter = nonParticipantsAdapter
         rv_members.layoutManager = GridLayoutManager(this,4)
 
     }

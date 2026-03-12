@@ -1,7 +1,6 @@
 package com.partynumbers42.matchmaking2v2
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -14,7 +13,6 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -69,45 +67,60 @@ class MainActivity : AppCompatActivity() {
         b_seed.isEnabled = false
         et_seed.isEnabled = false
 
-        // Fetch data from Firebase
-        FirebaseRepository.fetchSignedInClub(this) { success ->
-            if (!success) {
-                runOnUiThread {
-                    Toast.makeText(this, "Failed to load club data", Toast.LENGTH_SHORT).show()
-                }
-                return@fetchSignedInClub
-            }
-            //Update data from Sportmember and update Firebase
-            AppState.fetchAndPushMembers(this) { success ->
+        if (isDataLoaded) {
+            invalidateOptionsMenu()
+            b_generate.isEnabled = true
+            fabAddPlayers.isEnabled = true
+            b_seed.isEnabled = true
+            et_seed.isEnabled = true
+            showParticipatingMembers(AppState.currentParticipants)
+        } else {
+
+            // Fetch data from Firebase
+            FirebaseRepository.fetchSignedInClub(this) { success ->
                 if (!success) {
                     runOnUiThread {
-                        Toast.makeText(this, "Failed to update club data", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Failed to load club data", Toast.LENGTH_SHORT).show()
                     }
-                    return@fetchAndPushMembers
+                    return@fetchSignedInClub
                 }
-                //Pull participants for next activity from Sportmember
-                SportmemberRepository.fetchParticipants { success ->
+                //Update data from Sportmember and update Firebase
+                AppState.fetchAndPushMembers(this) { success ->
                     if (!success) {
                         runOnUiThread {
-                            Toast.makeText(this,"Failed to load next participants",Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "Failed to update club data", Toast.LENGTH_SHORT)
+                                .show()
                         }
-                        return@fetchParticipants
+                        return@fetchAndPushMembers
                     }
-                    runOnUiThread {
-                        isDataLoaded = true
-                        invalidateOptionsMenu()
-                        b_generate.isEnabled = true
-                        fabAddPlayers.isEnabled = true
-                        b_seed.isEnabled = true
-                        et_seed.isEnabled = true
-                        showParticipatingMembers(AppState.currentParticipants)
-                        AppState.seed = AppState.currentActivityId // seed stays fixed per activity
+                    //Pull participants for next activity from Sportmember
+                    SportmemberRepository.fetchParticipants { success ->
+                        if (!success) {
+                            runOnUiThread {
+                                Toast.makeText(
+                                    this,
+                                    "Failed to load next participants",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            return@fetchParticipants
+                        }
+                        runOnUiThread {
+                            isDataLoaded = true
+                            invalidateOptionsMenu()
+                            b_generate.isEnabled = true
+                            fabAddPlayers.isEnabled = true
+                            b_seed.isEnabled = true
+                            et_seed.isEnabled = true
+                            et_nrgames.setText("0")
+                            showParticipatingMembers(AppState.currentParticipants)
+                            AppState.seed =AppState.currentActivityId // seed stays fixed per activity
+                        }
                     }
                 }
             }
         }
 
-        et_nrgames.setText("0")
         b_generate.setOnClickListener {
 
             val nrgamesString = et_nrgames.text.toString()

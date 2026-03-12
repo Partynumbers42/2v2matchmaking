@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
@@ -40,7 +41,11 @@ class RoundsAdapter(
             rvMatchups.adapter = MatchupsAdapter(context, round.matchups)
             rvMatchups.layoutManager = LinearLayoutManager(context)
             tv_round.text = "Round ${position+1}"
-            tv_breakers.text = "Breakers: ${round.breakers.joinToString { it.firstname + " " + it.lastname.first()+"." }}"
+            if (round.breakers.isEmpty()) {
+                tv_breakers.visibility = View.GONE
+            } else {
+                tv_breakers.text = "Breakers: ${round.breakers.joinToString { it.firstname + " " + it.lastname.first() + "." }}"
+            }
         }
     }
 }

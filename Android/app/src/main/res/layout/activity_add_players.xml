@@ -37,7 +37,7 @@
         app:layout_constraintHeight_default="percent"
         app:layout_constraintHeight_percent="0.225"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_participants"></androidx.recyclerview.widget.RecyclerView>
+        app:layout_constraintTop_toBottomOf="@+id/tv_participants" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_members"
@@ -61,5 +61,28 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rv_participants" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/blueBlack"
+        android:elevation="20dp"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
+        android:paddingLeft="4dp"
+        android:paddingTop="4dp"
+        android:paddingRight="4dp"
+        android:paddingBottom="4dp"
+        app:cornerRadius="10dp"
+        app:icon="@drawable/outline_refresh_tan"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp"
+        app:iconSize="20dp"
+        app:iconTint="@color/tanAccent"
+        app:layout_constraintBottom_toBottomOf="@+id/rv_participants"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

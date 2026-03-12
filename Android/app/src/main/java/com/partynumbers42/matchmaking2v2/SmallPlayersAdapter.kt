@@ -1,23 +1,19 @@
 package com.partynumbers42.matchmaking2v2
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.ImageButton
-import android.widget.Spinner
-import android.widget.TextView
+import android.widget.Button
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.auth.FirebaseAuth
 import com.partynumbers42.matchmaking2v2.models.Player
 
 
 class SmallPlayersAdapter(
     val context: Context,
-    val players: MutableList<Player>
+    val players: MutableList<Player>,
+    val button: Boolean = false,
+    val onPlayerClick: (Player) -> Unit = {}
 ) : RecyclerView.Adapter<SmallPlayersAdapter.ViewHolder>()
 {
     override fun onCreateViewHolder(
@@ -33,23 +29,26 @@ class SmallPlayersAdapter(
         position: Int
     ) {
         val player = players[position]
-        holder.bind(player)
+        holder.bind(player,button)
+        holder.b_player.setOnClickListener {
+            onPlayerClick(player)
+        }
     }
 
     override fun getItemCount() = players.size
 
     inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
 
-        val tv_playername = itemView.findViewById<TextView>(R.id.tv_player1)
+        val b_player = itemView.findViewById<Button>(R.id.b_player)
 
-        fun bind(player: Player) {
-
-            tv_playername.text = player.firstname.split(" ").first() + " " + player.lastname.first() + "."
+        fun bind(player: Player, button: Boolean) {
+            b_player.isEnabled = button
+            val firstName = player.firstname.split(" ").firstOrNull() ?: ""
+            val lastInitial = player.lastname.firstOrNull() ?: ""
+            b_player.text = "$firstName $lastInitial."
 
         }
 
     }
-
-    private val levels = listOf("0","1","2","3")
 
 }
