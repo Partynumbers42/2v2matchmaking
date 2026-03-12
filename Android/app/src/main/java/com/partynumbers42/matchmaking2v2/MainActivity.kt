@@ -29,7 +29,6 @@ import androidx.core.view.isVisible
 private const val TAG = "MainActivity"
 
 private var isDataLoaded = false
-
 class MainActivity : AppCompatActivity() {
 
     data class Matchup(val player1: Player, val player2: Player, val player3: Player, val player4: Player)
@@ -176,6 +175,24 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
+
+        val adapter = ArrayAdapter(this,R.layout.spinner_mode_item, AppState.game_modes)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner_mode.adapter = adapter
+        spinner_mode.setSelection(0)
+        spinner_mode.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?,view: View?,position: Int,id: Long) {
+                val selectedMode = AppState.game_modes[position]
+                Log.i(TAG,"Selected mode: $selectedMode")
+                AppState.matchmakingMode = selectedMode
+            }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+                spinner_mode.setSelection(0)
+                AppState.matchmakingMode = AppState.game_modes.first()
+            }
+
+        }
 
         fabAddPlayers.setOnClickListener {
             val intent = Intent(this, AddPlayersActivity::class.java)
