@@ -24,6 +24,9 @@ object SportmemberRepository {
     var signedInClubSportmemberId: Long = 0
     var sportmemberUsername: String = ""
     var sportmemberPassword: String = ""
+    var sportmemberUserId: Long = 0
+    var excludeSportmemberUser: Boolean = false
+
     val client = OkHttpClient()
     private val credential: String
         get() = Credentials.basic(sportmemberUsername, sportmemberPassword)
@@ -58,6 +61,11 @@ object SportmemberRepository {
                     val bodyString = response.body?.string() ?: ""
 
                     apiMembersResult = listAdapterMembers.fromJson(bodyString)
+
+                    if (excludeSportmemberUser){
+                        apiMembersResult = apiMembersResult?.filter { it.id != sportmemberUserId }
+                    }
+
 
                     val membersCurrentCall = mutableListOf<Player>()
                     apiMembersResult?.forEach { member ->
@@ -100,11 +108,15 @@ object SportmemberRepository {
                     apiActivtiesResult?.forEach { activity ->
                         val playersCurrentCall = mutableListOf<Player>()
                         activity.players.forEach { player ->
-                            val member = AppState.currentClubMembers.find { it.sportmemberUserId == player.userId }
-                            if (member != null) {
-                                playersCurrentCall.add(member)
+                            if (player.statusCode==1) {
+                                val member = AppState.currentClubMembers.find { it.sportmemberUserId == player.userId }
+                                if (member != null) {
+                                    playersCurrentCall.add(member)
+                                } else {
+                                    Log.e(TAG, "Member not found: ${player.userId}")
+                                }
                             } else {
-                                Log.e(TAG, "Member not found: ${player.userId}")
+                                Log.i(TAG, "Player canceled: ${player.name}")
                             }
                         }
                         activitiesCurrentCall.add(Activity(activity.name,activity.starttime,activity.endtime,playersCurrentCall))

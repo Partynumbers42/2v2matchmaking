@@ -1,6 +1,7 @@
 package com.partynumbers42.matchmaking2v2
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -13,6 +14,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -21,7 +23,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.partynumbers42.matchmaking2v2.models.Player
-import kotlin.random.Random
 import androidx.core.view.isVisible
 
 private const val TAG = "MainActivity"
@@ -40,6 +41,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var fabAddPlayers: FloatingActionButton
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -105,7 +107,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        AppState.seed = System.currentTimeMillis()
+        AppState.seed = java.time.LocalDate.now().toEpochDay()
 
         et_nrgames.setText("0")
         b_generate.setOnClickListener {
@@ -113,7 +115,7 @@ class MainActivity : AppCompatActivity() {
             val nrgamesString = et_nrgames.text.toString()
             val nrgames = if (nrgamesString.isNotEmpty()) nrgamesString.toInt() else 0
             Log.i(TAG,"onProgressChanged $nrgames")
-            if (AppState.currentParticipants.size!=0){
+            if (AppState.currentParticipants.isNotEmpty()){
                 generateRounds(nrgames)
             } else {
                 clearRounds()
@@ -209,40 +211,48 @@ class MainActivity : AppCompatActivity() {
         rvMatchups.adapter = null
     }
 
-    private fun setUpMatchups(players: List<Player>): Round{
+    private fun setUpMatchups(players: MutableList<Player>, seed: Long = AppState.seed): MutableList<Matchup>{
+        // Number of players need to be divisible by 4 for this function, exclude breakers before
 
-        val randomizer = java.util.Random(AppState.seed)
-        val players_ordered = players.shuffled(randomizer)
-        
+        if (players.size%4 != 0){
+            Log.e(TAG, "Number of players not divisible by 4")
+        }
+
+        val playersRandomized = randomizePlayers(players,seed)
         val matchups: MutableList<Matchup> = mutableListOf<Matchup>()
-        val breakers: MutableList<Player> = mutableListOf<Player>()
 
-        var counter: Int = 0
-        val playersInMatchup: MutableList<Player> = mutableListOf<Player>()
-
-        for (player in players_ordered){
-            playersInMatchup.add(player)
-            counter+=1
-            if (counter==4) {
-                counter=0
-                matchups.add(Matchup(playersInMatchup[0],playersInMatchup[1],playersInMatchup[2],playersInMatchup[3]))
-                playersInMatchup.clear()
-            }
-
-        }
-        for (player in playersInMatchup){
-            breakers.add(player)
+        playersRandomized.chunked(4).forEach {
+            matchups.add(Matchup(it[0],it[1],it[2],it[3]))
         }
 
-        return Round(matchups,breakers)
+        return matchups
     }
 
     private fun setUpRounds(nrgames: Int): List<Round> {
+
+        val breakersLoop = randomizePlayers(AppState.currentParticipants, AppState.seed)
+        val breakersCount  = AppState.currentParticipants.size%4
+
         val rounds: MutableList<Round> = mutableListOf<Round>()
+
         for (i in 1..nrgames){
-            rounds.add(setUpMatchups(AppState.currentParticipants))
+
+            val breakers = breakersLoop.take(breakersCount).toMutableList()
+            val players = breakersLoop.drop(breakersCount).toMutableList()
+            java.util.Collections.rotate(breakersLoop,-breakersCount)
+
+            val roundSeed = 1000*AppState.seed + i
+
+            rounds.add(Round(setUpMatchups(players,roundSeed),breakers))
         }
+
         return rounds
+    }
+
+    private fun randomizePlayers(players: MutableList<Player>, seed: Long = AppState.seed): MutableList<Player> {
+        val randomizer = java.util.Random(seed)
+        val playersShuffled = players.shuffled(randomizer)
+        return playersShuffled as MutableList<Player>
     }
 
 

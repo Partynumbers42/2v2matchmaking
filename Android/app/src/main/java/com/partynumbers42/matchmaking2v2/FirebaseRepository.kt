@@ -40,6 +40,7 @@ object FirebaseRepository {
                 // Load Club data
                 AppState.signedInClub  = userSnapshot.toObject(Club::class.java)
                 Log.i(TAG, "signed in club: ${AppState.signedInClub}")
+
                 AppState.signedInClub?.members?.let {
                     AppState.currentClubMembers = it.toMutableList()
                 }
@@ -52,6 +53,9 @@ object FirebaseRepository {
                 SportmemberRepository.signedInClubSportmemberId = AppState.signedInClub?.sportmemberId ?: 0L
                 SportmemberRepository.sportmemberUsername = AppState.signedInClub?.sportmemberUsername ?: ""
                 SportmemberRepository.sportmemberPassword = AppState.signedInClub?.sportmemberPassword ?: ""
+                SportmemberRepository.excludeSportmemberUser = AppState.signedInClub?.excludeSportmemberUser ?: false
+                SportmemberRepository.sportmemberUserId = AppState.signedInClub?.sportmemberUserId ?: 0L
+
                 onComplete(true)
             }
             .addOnFailureListener { exception ->
