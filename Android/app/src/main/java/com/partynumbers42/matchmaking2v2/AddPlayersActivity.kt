@@ -41,7 +41,7 @@ class AddPlayersActivity : AppCompatActivity() {
         val rv_participants = findViewById<RecyclerView>(R.id.rv_participants)
 
         rv_participants.adapter = SmallPlayersAdapter(this, currentParticipants) // change the whole SmallPlayerAdapter into a button???
-        rv_participants.layoutManager = GridLayoutManager(this, 3)
+        rv_participants.layoutManager = GridLayoutManager(this, 4)
 
     }
 
@@ -50,7 +50,7 @@ class AddPlayersActivity : AppCompatActivity() {
         val rv_members = findViewById<RecyclerView>(R.id.rv_members)
 
         rv_members.adapter = SmallPlayersAdapter(this, nonParticipants)
-        rv_members.layoutManager = GridLayoutManager(this,3)
+        rv_members.layoutManager = GridLayoutManager(this,4)
 
     }
 

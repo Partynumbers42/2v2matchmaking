@@ -40,7 +40,7 @@ class RoundsAdapter(
             rvMatchups.adapter = MatchupsAdapter(context, round.matchups)
             rvMatchups.layoutManager = LinearLayoutManager(context)
             tv_round.text = "Round ${position+1}"
-            tv_breakers.text = "Breakers: ${round.breakers.joinToString { it.firstname }}"
+            tv_breakers.text = "Breakers: ${round.breakers.joinToString { it.firstname + " " + it.lastname.first()+"." }}"
         }
     }
 }

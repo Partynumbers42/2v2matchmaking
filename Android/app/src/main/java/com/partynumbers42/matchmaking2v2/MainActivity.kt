@@ -164,7 +164,7 @@ class MainActivity : AppCompatActivity() {
         val rv_participants = findViewById<RecyclerView>(R.id.rvplayers)
 
         rv_participants.adapter = SmallPlayersAdapter(this, currentParticipants)
-        rv_participants.layoutManager = GridLayoutManager(this,3)
+        rv_participants.layoutManager = GridLayoutManager(this,4)
 
     }
 
