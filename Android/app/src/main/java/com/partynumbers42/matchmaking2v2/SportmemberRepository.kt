@@ -119,7 +119,7 @@ object SportmemberRepository {
                                 Log.i(TAG, "Player canceled: ${player.name}")
                             }
                         }
-                        activitiesCurrentCall.add(Activity(activity.name,activity.starttime,activity.endtime,playersCurrentCall))
+                        activitiesCurrentCall.add(Activity(activity.id,activity.name,activity.starttime,activity.endtime,playersCurrentCall))
                         Log.i(TAG, "Found activity: ${activity.name} (${activity.starttime} ${activity.endtime}): ${playersCurrentCall.size} players ")
                     }
                     onComplete(activitiesCurrentCall)
@@ -133,6 +133,9 @@ object SportmemberRepository {
         fetchActivities(onComplete = { activities ->
             val activity = activities.firstOrNull()
             Log.i(TAG, "Next activity: ${activity?.name}")
+
+            AppState.currentActivityId = activity?.sportmemberId ?: 0
+
             val players = activity?.players
 
             AppState.currentParticipants = players as MutableList<Player>

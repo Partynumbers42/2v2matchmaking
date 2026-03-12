@@ -41,7 +41,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var fabAddPlayers: FloatingActionButton
 
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -102,12 +101,11 @@ class MainActivity : AppCompatActivity() {
                         b_seed.isEnabled = true
                         et_seed.isEnabled = true
                         showParticipatingMembers(AppState.currentParticipants)
+                        AppState.seed = AppState.currentActivityId // seed stays fixed per activity
                     }
                 }
             }
         }
-
-        AppState.seed = java.time.LocalDate.now().toEpochDay()
 
         et_nrgames.setText("0")
         b_generate.setOnClickListener {

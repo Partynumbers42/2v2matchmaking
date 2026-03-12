@@ -14,6 +14,7 @@ object AppState {
     var signedInClubFirebaseIdString: String = ""
     var currentClubMembers: MutableList<Player> = mutableListOf<Player>()
     var currentClubMembersIds: MutableList<Long> = mutableListOf<Long>()
+    var currentActivityId: Long = 0
     var currentParticipants: MutableList<Player> = mutableListOf<Player>()
     var nonParticipants: MutableList<Player> = mutableListOf<Player>()
 
