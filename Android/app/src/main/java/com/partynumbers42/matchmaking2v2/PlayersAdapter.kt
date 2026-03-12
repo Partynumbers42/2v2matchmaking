@@ -1,7 +1,6 @@
 package com.partynumbers42.matchmaking2v2
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +10,6 @@ import android.widget.ImageButton
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.auth.FirebaseAuth
 import com.partynumbers42.matchmaking2v2.models.Player
 
 
@@ -59,7 +57,7 @@ class PlayersAdapter(
 
             val adapter = ArrayAdapter(
                 itemView.context,
-                R.layout.spinner_item, // Standard layout for the spinner closed view
+                R.layout.spinner_level_item, // Standard layout for the spinner closed view
                 levels
             )
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)

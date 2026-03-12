@@ -8,8 +8,11 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -31,11 +34,13 @@ class MainActivity : AppCompatActivity() {
 
     data class Matchup(val player1: Player, val player2: Player, val player3: Player, val player4: Player)
     data class Round(val matchups: List<Matchup>, val breakers: List<Player>)
+    private lateinit var tv_nrgames: TextView
     private lateinit var et_nrgames: EditText
     private lateinit var b_generate: Button
     private lateinit var b_seed: Button
     private lateinit var et_seed: EditText
     private lateinit var tv_seed: TextView
+    private lateinit var spinner_mode: Spinner
     private lateinit var fabAddPlayers: FloatingActionButton
 
 
@@ -51,9 +56,15 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        et_nrgames = findViewById(R.id.et_nrgames)
         b_generate = findViewById(R.id.b_generate)
         fabAddPlayers = findViewById(R.id.fabAddPlayers)
+
+        tv_nrgames = findViewById(R.id.tv_nrgames)
+        et_nrgames = findViewById(R.id.et_nrgames)
+        spinner_mode = findViewById(R.id.spinner_mode)
+        tv_nrgames.visibility = View.GONE
+        et_nrgames.visibility = View.GONE
+        spinner_mode.visibility = View.GONE
 
         b_seed = findViewById(R.id.bu_seed)
         et_seed = findViewById(R.id.et_seed)
@@ -112,7 +123,7 @@ class MainActivity : AppCompatActivity() {
                             fabAddPlayers.isEnabled = true
                             b_seed.isEnabled = true
                             et_seed.isEnabled = true
-                            et_nrgames.setText("0")
+                            et_nrgames.setText(AppState.nrOfMatchups.toString())
                             showParticipatingMembers(AppState.currentParticipants)
                             AppState.seed =AppState.currentActivityId // seed stays fixed per activity
                         }
@@ -125,7 +136,9 @@ class MainActivity : AppCompatActivity() {
 
             val nrgamesString = et_nrgames.text.toString()
             val nrgames = if (nrgamesString.isNotEmpty()) nrgamesString.toInt() else 0
-            Log.i(TAG,"onProgressChanged $nrgames")
+            AppState.nrOfMatchups = nrgames
+
+            Log.i(TAG,"Number of games to generate: $nrgames")
             if (AppState.currentParticipants.isNotEmpty()){
                 generateRounds(nrgames)
             } else {
@@ -138,10 +151,17 @@ class MainActivity : AppCompatActivity() {
             if (tv_seed.isVisible) {
                 tv_seed.visibility = View.GONE
                 et_seed.visibility = View.GONE
+                tv_nrgames.visibility = View.GONE
+                et_nrgames.visibility = View.GONE
+                spinner_mode.visibility = View.GONE
             } else {
                 tv_seed.visibility = View.VISIBLE
                 et_seed.visibility = View.VISIBLE
                 et_seed.setText(AppState.seed.toString())
+                tv_nrgames.visibility = View.VISIBLE
+                et_nrgames.visibility = View.VISIBLE
+                et_nrgames.setText(AppState.nrOfMatchups.toString())
+                spinner_mode.visibility = View.VISIBLE
             }
         }
 

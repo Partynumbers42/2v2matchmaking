@@ -11,25 +11,13 @@
         android:id="@+id/tv_nrgames"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
         android:text="Nr. of Games:"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rvplayers" />
-
-    <EditText
-        android:id="@+id/et_nrgames"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:ems="2"
-        android:inputType="numberDecimal"
-        android:text="0"
-        android:textAlignment="viewEnd"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="@+id/tv_nrgames"
-        app:layout_constraintStart_toEndOf="@+id/tv_nrgames"
-        app:layout_constraintTop_toTopOf="@+id/tv_nrgames" />
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/et_nrgames"
+        app:layout_constraintEnd_toStartOf="@+id/et_nrgames"
+        app:layout_constraintTop_toTopOf="@+id/et_nrgames"
+        app:layout_constraintVertical_bias="0.476" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvplayers"
@@ -49,7 +37,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="4dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:layout_marginEnd="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -62,7 +50,8 @@
         android:id="@+id/b_generate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="48dp"
         android:backgroundTint="@color/blueBlack"
         android:elevation="8dp"
         android:paddingLeft="15dp"
@@ -71,9 +60,9 @@
         android:paddingBottom="0dp"
         android:text="Generate Matches"
         android:textColor="@color/tanAccent"
-        app:layout_constraintBottom_toBottomOf="@+id/et_nrgames"
-        app:layout_constraintStart_toEndOf="@+id/et_nrgames"
-        app:layout_constraintTop_toTopOf="@+id/et_nrgames" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider2" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAddPlayers"
@@ -113,13 +102,26 @@
         android:id="@+id/et_seed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:ems="10"
+        android:layout_marginTop="4dp"
+        android:ems="6"
         android:inputType="number"
         android:textAlignment="viewEnd"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="@+id/bu_seed"
         app:layout_constraintTop_toBottomOf="@+id/bu_seed" />
+
+    <EditText
+        android:id="@+id/et_nrgames"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:ems="2"
+        android:inputType="number"
+        android:textAlignment="viewEnd"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_seed"
+        app:layout_constraintEnd_toStartOf="@+id/tv_seed"
+        app:layout_constraintTop_toTopOf="@+id/tv_seed" />
 
     <Button
         android:id="@+id/bu_seed"
@@ -129,9 +131,9 @@
         android:backgroundTint="@color/blueBlack"
         android:paddingLeft="5dp"
         android:paddingTop="0dp"
-        android:paddingRight="5dp"
+        android:paddingRight="15dp"
         android:paddingBottom="0dp"
-        android:text="Seed"
+        android:text="Settings"
         android:textAlignment="viewStart"
         android:textColor="@color/tanAccent"
         app:icon="@drawable/outline_arrow_drop_down"
@@ -140,5 +142,25 @@
         app:layout_constraintBottom_toBottomOf="@+id/b_generate"
         app:layout_constraintStart_toEndOf="@+id/b_generate"
         app:layout_constraintTop_toTopOf="@+id/b_generate" />
+
+    <Spinner
+        android:id="@+id/spinner_mode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:spinnerMode="dropdown"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_nrgames"
+        app:layout_constraintEnd_toStartOf="@+id/tv_nrgames"
+        app:layout_constraintTop_toTopOf="@+id/tv_nrgames" />
+
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="409dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="4dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rvplayers" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

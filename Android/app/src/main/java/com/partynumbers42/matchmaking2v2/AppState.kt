@@ -17,6 +17,7 @@ object AppState {
     var currentActivityId: Long = 0
     var currentParticipants: MutableList<Player> = mutableListOf<Player>()
     var nonParticipants: MutableList<Player> = mutableListOf<Player>()
+    var nrOfMatchups: Int = 6
 
     fun fetchAndPushMembers(context: Context,onComplete: (Boolean) -> Unit) {
 
