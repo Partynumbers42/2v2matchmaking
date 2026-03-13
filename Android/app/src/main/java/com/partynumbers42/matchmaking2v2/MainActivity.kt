@@ -25,6 +25,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.partynumbers42.matchmaking2v2.models.Player
 import androidx.core.view.isVisible
+import java.util.Collections.rotate
+import kotlin.random.Random
 
 private const val TAG = "MainActivity"
 
@@ -176,20 +178,20 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        val adapter = ArrayAdapter(this,R.layout.spinner_mode_item, AppState.game_modes)
+        val adapter = ArrayAdapter(this,R.layout.spinner_mode_item, AppState.matchmakingModes)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner_mode.adapter = adapter
         spinner_mode.setSelection(0)
         spinner_mode.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?,view: View?,position: Int,id: Long) {
-                val selectedMode = AppState.game_modes[position]
+                val selectedMode = AppState.matchmakingModes[position]
                 Log.i(TAG,"Selected mode: $selectedMode")
-                AppState.matchmakingMode = selectedMode
+                AppState.currentMatchmakingMode = selectedMode
             }
 
             override fun onNothingSelected(p0: AdapterView<*>?) {
                 spinner_mode.setSelection(0)
-                AppState.matchmakingMode = AppState.game_modes.first()
+                AppState.currentMatchmakingMode = AppState.matchmakingModes.first()
             }
 
         }
@@ -262,15 +264,47 @@ class MainActivity : AppCompatActivity() {
     private fun setUpMatchups(players: MutableList<Player>, seed: Long = AppState.seed): MutableList<Matchup>{
         // Number of players need to be divisible by 4 for this function, exclude breakers before
 
+        val randomizer = Random(seed)
+
         if (players.size%4 != 0){
             Log.e(TAG, "Number of players not divisible by 4")
         }
 
-        val playersRandomized = randomizePlayers(players,seed)
-        val matchups: MutableList<Matchup> = mutableListOf<Matchup>()
+        var level_modulus: Int = 4
+        if (AppState.currentMatchmakingMode=="Open"){
+            level_modulus = 2
+        }
+
+        val pools = mutableListOf<MutableList<Player>>()
+        AppState.levels.forEach { levelString ->
+            val level = levelString.toInt()
+            val playersAtLevel = players.filter { it.level == level }
+            pools.add(playersAtLevel.toMutableList())
+        }
+        val tempPool = mutableListOf<Player>()
+        pools.forEach { pool ->
+            pool.addAll(tempPool)
+            val overflow = (-pool.size)%level_modulus
+            repeat(overflow){
+                val choosenPlayer = pool.random(randomizer)
+                tempPool.add(choosenPlayer)
+                pool.remove(choosenPlayer)
+            }
+        }
+
+        val matchups = mutableListOf<Matchup>()
+        var playersRandomized = mutableListOf<Player>()
+
+        if (AppState.currentMatchmakingMode=="Division") {
+            val randomizedPools = randomizePools(pools, seed)
+            playersRandomized = randomizedPools.flatten() as MutableList<Player>
+        } else {
+            // TODO implement open matchmaking
+            playersRandomized = randomizePlayers(players, seed)
+        }
 
         playersRandomized.chunked(4).forEach {
-            matchups.add(Matchup(it[0],it[1],it[2],it[3]))
+            matchups.add(Matchup(it[0], it[2], it[1], it[3]))
         }
 
         return matchups
@@ -287,7 +321,7 @@ class MainActivity : AppCompatActivity() {
 
             val breakers = breakersLoop.take(breakersCount).toMutableList()
             val players = breakersLoop.drop(breakersCount).toMutableList()
-            java.util.Collections.rotate(breakersLoop,-breakersCount)
+            rotate(breakersLoop,-breakersCount)
 
             val roundSeed = 1000*AppState.seed + i
 
@@ -298,9 +332,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun randomizePlayers(players: MutableList<Player>, seed: Long = AppState.seed): MutableList<Player> {
-        val randomizer = java.util.Random(seed)
+        val randomizer = Random(seed)
         val playersShuffled = players.shuffled(randomizer)
         return playersShuffled as MutableList<Player>
+    }
+
+    private fun randomizePools(pools: MutableList<MutableList<Player>>, seed: Long = AppState.seed): MutableList<MutableList<Player>> {
+        val randomizer = Random(seed)
+        val poolsShuffled = pools
+        pools.forEach{ pool ->
+            val playersShuffled = pool.shuffled(randomizer) as MutableList<Player>
+            poolsShuffled.add(playersShuffled)
+        }
+        return poolsShuffled
     }
 
 

@@ -58,13 +58,13 @@ class PlayersAdapter(
             val adapter = ArrayAdapter(
                 itemView.context,
                 R.layout.spinner_level_item, // Standard layout for the spinner closed view
-                levels
+                AppState.levels
             )
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
             spinner.adapter = adapter
 
-            spinner.setSelection(levels.indexOf(player.level.toString()))
+            spinner.setSelection(AppState.levels.indexOf(player.level.toString()))
 
             spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
@@ -73,7 +73,7 @@ class PlayersAdapter(
                     position: Int,
                     id: Long
                 ) {
-                    val selectedLevel = levels[position]
+                    val selectedLevel = AppState.levels[position]
                     player.level = selectedLevel.toInt()
                 }
 
@@ -83,7 +83,5 @@ class PlayersAdapter(
         }
 
     }
-
-    private val levels = listOf("0","1","2","3")
 
 }

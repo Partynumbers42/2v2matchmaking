@@ -1,7 +1,6 @@
 package com.partynumbers42.matchmaking2v2
 
 import android.util.Log
-import android.widget.Toast
 import android.content.Context
 import com.partynumbers42.matchmaking2v2.models.Club
 import com.partynumbers42.matchmaking2v2.models.Player
@@ -18,8 +17,9 @@ object AppState {
     var currentParticipants: MutableList<Player> = mutableListOf<Player>()
     var nonParticipants: MutableList<Player> = mutableListOf<Player>()
     var nrOfMatchups: Int = 6
-    var matchmakingMode: String = "Open"
-    val game_modes = listOf("Open","Division")
+    val matchmakingModes = listOf("Open","Division")
+    var currentMatchmakingMode: String = matchmakingModes.first()
+    val levels = listOf("0","1","2","3")
 
     fun fetchAndPushMembers(context: Context,onComplete: (Boolean) -> Unit) {
 
