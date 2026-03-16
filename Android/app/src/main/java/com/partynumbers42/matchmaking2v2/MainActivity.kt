@@ -300,6 +300,23 @@ class MainActivity : AppCompatActivity() {
             playersRandomized = randomizedPools.flatten() as MutableList<Player>
         } else {
             // TODO implement open matchmaking
+
+            //val nrgames = players.size/4
+            //for (i in 1..nrgames){
+            //    val level1 = randomizeLevels(AppState.levels,seed)
+            //    val level2 = randomizeLevels(AppState.levels,seed)
+            //    val pool1 = pools[level1]
+            //    val pool2 = pools[level2]
+            //    val thisPools = listOf<MutableList<Player>>(pool1,pool2)
+            //    val thisPlayers  = mutableListOf<Player>()
+            //    for (j in 1..2) {
+            //        for (pool in thisPools) {
+            //            val choosenPlayer = pool.random(randomizer)
+            //            thisPlayers.add(choosenPlayer)
+            //        }
+            //    }
+            //    playersRandomized.addAll(thisPlayers)
+            //}
             playersRandomized = randomizePlayers(players, seed)
         }
 
@@ -335,6 +352,11 @@ class MainActivity : AppCompatActivity() {
         val randomizer = Random(seed)
         val playersShuffled = players.shuffled(randomizer)
         return playersShuffled as MutableList<Player>
+    }
+
+    private fun randomizeLevels(levels: List<String> = AppState.levels, seed: Long = AppState.seed): Int {
+        val randomizer = Random(seed)
+        return levels.random(randomizer).toInt()
     }
 
     private fun randomizePools(pools: MutableList<MutableList<Player>>, seed: Long = AppState.seed): MutableList<MutableList<Player>> {
