@@ -17,9 +17,9 @@ object AppState {
     var currentParticipants: MutableList<Player> = mutableListOf<Player>()
     var nonParticipants: MutableList<Player> = mutableListOf<Player>()
     var nrOfMatchups: Int = 6
-    val matchmakingModes = listOf("Open","Division")
+    val matchmakingModes = listOf("All Random","Open","Division")
     var currentMatchmakingMode: String = matchmakingModes.first()
-    val levels = listOf("0","1","2","3")
+    val levels = listOf("0","1","2","3","4","5","6")
 
     fun fetchAndPushMembers(context: Context,onComplete: (Boolean) -> Unit) {
 

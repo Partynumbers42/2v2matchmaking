@@ -284,6 +284,7 @@ class MainActivity : AppCompatActivity() {
         val tempPool = mutableListOf<Player>()
         pools.forEach { pool ->
             pool.addAll(tempPool)
+            tempPool.clear()
             val overflow = (-pool.size)%level_modulus
             repeat(overflow){
                 val choosenPlayer = pool.random(randomizer)
@@ -295,29 +296,32 @@ class MainActivity : AppCompatActivity() {
         val matchups = mutableListOf<Matchup>()
         var playersRandomized = mutableListOf<Player>()
 
-        if (AppState.currentMatchmakingMode=="Division") {
-            val randomizedPools = randomizePools(pools, seed)
-            playersRandomized = randomizedPools.flatten() as MutableList<Player>
-        } else {
-            // TODO implement open matchmaking
-
-            //val nrgames = players.size/4
-            //for (i in 1..nrgames){
-            //    val level1 = randomizeLevels(AppState.levels,seed)
-            //    val level2 = randomizeLevels(AppState.levels,seed)
-            //    val pool1 = pools[level1]
-            //    val pool2 = pools[level2]
-            //    val thisPools = listOf<MutableList<Player>>(pool1,pool2)
-            //    val thisPlayers  = mutableListOf<Player>()
-            //    for (j in 1..2) {
-            //        for (pool in thisPools) {
-            //            val choosenPlayer = pool.random(randomizer)
-            //            thisPlayers.add(choosenPlayer)
-            //        }
-            //    }
-            //    playersRandomized.addAll(thisPlayers)
-            //}
-            playersRandomized = randomizePlayers(players, seed)
+        when (AppState.currentMatchmakingMode) {
+            "Division" -> {
+                val randomizedPools = randomizePools(pools, seed)
+                playersRandomized = randomizedPools.flatten().toMutableList()
+            }
+            "Open" -> {
+                val nrgames = players.size / 4
+                for (i in 1..nrgames) {
+                    val level1 = randomizeLevels(AppState.levels, seed)
+                    val level2 = randomizeLevels(AppState.levels, seed)
+                    val pool1 = pools[level1]
+                    val pool2 = pools[level2]
+                    val thisPools = listOf(pool1, pool2)
+                    val thisPlayers = mutableListOf<Player>()
+                    for (j in 1..2) {
+                        for (pool in thisPools) {
+                            val choosenPlayer = pool.random(randomizer)
+                            thisPlayers.add(choosenPlayer)
+                        }
+                    }
+                    playersRandomized.addAll(thisPlayers)
+                }
+            }
+            else -> {
+                playersRandomized = randomizePlayers(players, seed)
+            }
         }
 
         playersRandomized.chunked(4).forEach {
@@ -350,8 +354,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun randomizePlayers(players: MutableList<Player>, seed: Long = AppState.seed): MutableList<Player> {
         val randomizer = Random(seed)
-        val playersShuffled = players.shuffled(randomizer)
-        return playersShuffled as MutableList<Player>
+        return players.shuffled(randomizer).toMutableList()
     }
 
     private fun randomizeLevels(levels: List<String> = AppState.levels, seed: Long = AppState.seed): Int {
@@ -359,15 +362,11 @@ class MainActivity : AppCompatActivity() {
         return levels.random(randomizer).toInt()
     }
 
-    private fun randomizePools(pools: MutableList<MutableList<Player>>, seed: Long = AppState.seed): MutableList<MutableList<Player>> {
+    private fun randomizePools(pools: List<MutableList<Player>>, seed: Long = AppState.seed): List<MutableList<Player>> {
         val randomizer = Random(seed)
-        val poolsShuffled = pools
-        pools.forEach{ pool ->
-            val playersShuffled = pool.shuffled(randomizer) as MutableList<Player>
-            poolsShuffled.add(playersShuffled)
+        return pools.map { pool ->
+            pool.shuffled(randomizer).toMutableList()
         }
-        return poolsShuffled
     }
-
 
 }
