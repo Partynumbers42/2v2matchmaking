@@ -16,8 +16,8 @@ object AppState {
     var currentActivityId: Long = 0
     var currentParticipants: MutableList<Player> = mutableListOf<Player>()
     var nonParticipants: MutableList<Player> = mutableListOf<Player>()
-    var nrOfMatchups: Int = 6
-    val matchmakingModes = listOf("All Random","Open","Division")
+    var nrOfMatchups: Int = 4
+    val matchmakingModes = listOf("All Random","True Open","Soft Open","Division All","Division 3","Division 2")
     var currentMatchmakingMode: String = matchmakingModes.first()
     val levels = listOf("0","1","2","3","4","5","6")
 
