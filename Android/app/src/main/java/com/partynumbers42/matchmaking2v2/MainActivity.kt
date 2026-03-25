@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.partynumbers42.matchmaking2v2.models.Player
 import androidx.core.view.isVisible
+import com.partynumbers42.matchmaking2v2.models.Pools
 import java.util.Collections.rotate
 import kotlin.collections.last
 import kotlin.random.Random
@@ -262,54 +263,11 @@ class MainActivity : AppCompatActivity() {
         rvMatchups.adapter = null
     }
 
-    private fun setUpMatchups(players: MutableList<Player>, mode: String = "Open", seed: Long = AppState.seed, mode_setting: Int = 0): MutableList<Matchup>{
+    private fun setUpMatchups(pools: Pools, mode: String = "Open", seed: Long = AppState.seed, modeSetting: Int = 0): MutableList<Matchup>{
         // Number of players need to be divisible by 4 for this function, exclude breakers before
 
-        if (players.size%4 != 0){
+        if (pools.size%4 != 0){
             Log.e(TAG, "Number of players not divisible by 4")
-        }
-
-        var level_modulus: Int = 4
-        if (mode in listOf("Open")){
-            level_modulus = 2
-        }
-
-        val pools = mutableListOf<MutableList<Player>>()
-        AppState.levels.forEach { levelString ->
-            val level = levelString.toInt()
-            val playersAtLevel = players.filter { it.level == level }
-            pools.add(playersAtLevel.toMutableList())
-        }
-
-        // Randomize Pools
-        val randomizedPools = randomizePools(pools, seed)
-
-        // Promote Players to equal out Pools
-        val tempPool = mutableListOf<Player>()
-        for (i in randomizedPools.indices) {
-            val pool = randomizedPools[i]
-            pool.addAll(tempPool)
-            tempPool.clear()
-            val overflow = (pool.size) % level_modulus
-            if (overflow != 0) {
-                Log.i(TAG, "Pool $i Overflow: $overflow")
-                repeat(overflow) {
-                    val chosenPlayer = pool.last()
-                    Log.i(TAG, "Promote: ${chosenPlayer.firstname + " " + chosenPlayer.lastname}")
-                    tempPool.add(chosenPlayer)
-                    pool.remove(chosenPlayer)
-                }
-            }
-        }
-
-        val existingLevels = randomizedPools.indices.filter { randomizedPools[it].isNotEmpty() }.toMutableList()
-        Log.i(TAG,"existing Lvls: $existingLevels")
-
-        for (i in randomizedPools.indices) {
-            val pool = randomizedPools[i]
-            if (pool.isNotEmpty()) {
-                Log.i(TAG, "Pool lvl $i: ${pool.map { it.firstname + " " + it.lastname[0] + "." }}")
-            }
         }
 
         val matchups = mutableListOf<Matchup>()
@@ -317,61 +275,59 @@ class MainActivity : AppCompatActivity() {
 
         when (mode) {
             "Random" -> {
-                playersRandomized = randomizePlayers(players, seed)
+                playersRandomized = randomizePlayers(pools.players, seed)
             }
             "Division" -> {
-                playersRandomized = randomizedPools.flatten().toMutableList()
+                playersRandomized = pools.players
             }
             "Open" -> {
-                val nrgames = players.size / 4
+                val poolsIndices1 = pools.pools.indices.filter { pools.pools[it].size != 0 }.toMutableList()
+                val nrgames = pools.size / 4
                 for (i in 1..nrgames) {
-                    val level1Seed = 1000*seed + 10*i + 1
-                    val level1 = randomizeLevels(existingLevels, level1Seed)
-                    val pool1 = randomizedPools[level1]
-                    var existingLevels2 = existingLevels
-                    when (mode_setting) {
+                    val seed1 = 1000*seed + 10*i + 1
+                    val index1 = randomizeLevels(poolsIndices1, seed1)
+                    val pool1 = pools.pools[index1]
+                    var poolsIndices2 = poolsIndices1.filter { it != index1 }.toMutableList()
+                    when (modeSetting) {
                         0 -> {
-                            if (pool1.size<4) {
-                                existingLevels2 = existingLevels.filter { it != level1 }.toMutableList()
+                            // allow the same pool to be used twice
+                            if (pool1.size>=4) {
+                                poolsIndices2 = poolsIndices1.toMutableList()
                             }
                         }
                         1 -> {
-                            existingLevels2 = existingLevels.filter { it != level1 }.toMutableList()
+
                         }
                         else -> {
                             Log.e(TAG,"Unknown mode setting")
-                            existingLevels2 = existingLevels.filter { it != level1 }.toMutableList()
                         }
                     }
                     val thisPlayers = mutableListOf<Player>()
-                    if (existingLevels2.isEmpty()) {
-                        Log.i(TAG, "Match $i: lvl $level1 vs lvl $level1")
+                    if (poolsIndices2.isEmpty()) {
+                        Log.i(TAG, "Match $i: index $index1 vs index $index1")
                         for (j in 1..4) {
-                            val pool1 = randomizedPools[level1]
-                            val choosenPlayer = pool1.first()
-                            thisPlayers.add(choosenPlayer)
-                            pool1.remove(choosenPlayer)
+                            thisPlayers.add(pool1.players.first())
+                            pool1.removeFirstPlayer()
                         }
                     } else {
-                        val level2Seed = 1000*seed + 10*i + 2
-                        val level2 = randomizeLevels(existingLevels2, level2Seed)
-                        Log.i(TAG, "Match $i: lvl $level1 vs lvl $level2")
-                        val pool2 = randomizedPools[level2]
+                        val seed2 = 1000*seed + 10*i + 2
+                        val index2 = randomizeLevels(poolsIndices2, seed2)
+                        Log.i(TAG, "Match $i: lvl $index1 vs lvl $index2")
+                        val pool2 = pools.pools[index2]
                         val thisPools = listOf(pool1, pool2)
                         Log.i(TAG, thisPools.toString())
                         for (pool in thisPools) {
                             for (j in 1..2) {
-                                val choosenPlayer = pool.first()
-                                thisPlayers.add(choosenPlayer)
-                                pool.remove(choosenPlayer)
+                                thisPlayers.add(pool.players.first())
+                                pool.removeFirstPlayer()
                             }
                         }
-                        if (pool2.isEmpty()) {
-                            existingLevels.remove(level2)
+                        if (pool2.size == 0) {
+                            poolsIndices1.remove(index2)
                         }
                     }
-                    if (pool1.isEmpty()) {
-                        existingLevels.remove(level1)
+                    if (pool1.size == 0) {
+                        poolsIndices1.remove(index1)
                     }
 
                     playersRandomized.addAll(thisPlayers)
@@ -411,84 +367,69 @@ class MainActivity : AppCompatActivity() {
 
             when (AppState.currentMatchmakingMode) {
                 "True Open" -> {
-                    rounds.add(Round(setUpMatchups(players,"Open",roundSeed,0),breakers))
+                    val pools = Pools(players, seed = roundSeed)
+                    pools.equalizePoolCollections(2)
+                    pools.randomize()
+                    rounds.add(Round(setUpMatchups(pools,"Open",roundSeed,0),breakers))
                 }
                 "Soft Open" -> {
+
                     // TODO include Delta Level = 2 limitation
-                    //Toast.makeText(this,"Soft Open not fully implemented",Toast.LENGTH_SHORT).show()
+
                     if (i%2==0) {
-                        rounds.add(Round(setUpMatchups(players, "Open", roundSeed,1), breakers))
+                        val pools = Pools(players, seed = roundSeed)
+                        pools.equalizePoolCollections(2)
+                        pools.randomize()
+                        rounds.add(Round(setUpMatchups(pools,"Open",roundSeed,1),breakers))
                     } else {
-                        rounds.add(Round(setUpMatchups(players, "Division", roundSeed), breakers))
+                        val pools = Pools(players, seed = roundSeed)
+                        pools.equalizePoolCollections(4)
+                        pools.randomize()
+                        rounds.add(Round(setUpMatchups(pools, "Division", roundSeed), breakers))
                     }
                 }
                 "Division All" -> {
-                    rounds.add(Round(setUpMatchups(players, "Division", roundSeed),breakers))
+
+                    val pools = Pools(players, seed = roundSeed)
+                    pools.equalizePoolCollections(4)
+                    pools.randomize()
+
+                    rounds.add(Round(setUpMatchups(pools, "Division", roundSeed),breakers))
                 }
                 "Division 3" -> {
-                    val divisor = 3
-                    // TODO
-                    // Outsource this function (for both cases)
-                    // Potentially make the Pool an object which can be randomized while keeping added players of different level at the end
-                    // Or randomize in the very beginning
-                    val playerBlocks: MutableList<MutableList<Player>> = mutableListOf<MutableList<Player>>()
-                    for (i in 0..divisor) {
-                        val levels = AppState.levels.filter { (i-1)*AppState.levels.last().toInt()/divisor < it.toInt() && it.toInt() <= i*AppState.levels.last().toInt()/divisor }
-                        val thisPlayers = players.filter { it.level.toString() in levels }.toMutableList()
-                        playerBlocks.add(thisPlayers)
-                    }
-                    val block_modulus = 4
-                    val tempBlock = mutableListOf<Player>()
-                    for (playersBlock in playerBlocks) {
-                        playersBlock.addAll(tempBlock)
-                        tempBlock.clear()
-                        val overflow = (playersBlock.size) % block_modulus
-                        if (overflow != 0) {
-                            repeat(overflow) {
-                                val chosenPlayer = tempBlock.last()
-                                tempBlock.add(chosenPlayer)
-                                playersBlock.remove(chosenPlayer)
-                            }
-                        }
-                    }
+
+                    val pools = Pools(players, divisor = 3, seed = roundSeed)
+                    pools.equalizePoolCollections(4)
+
                     val matchups = mutableListOf<Matchup>()
-                    for (playersBlock in playerBlocks) {
-                        val thisMatchups = setUpMatchups(playersBlock, "Open", roundSeed,0)
+                    for (poolCollection in pools.pools) {
+                        val thisPlayers = poolCollection.players
+                        val thisPools = Pools(thisPlayers, seed = roundSeed)
+                        thisPools.equalizePoolCollections(2)
+                        thisPools.randomize()
+                        val thisMatchups = setUpMatchups(thisPools, "Open", roundSeed,0)
                         matchups.addAll(thisMatchups)
                     }
                     rounds.add(Round(matchups,breakers))
                 }
                 "Division 2" -> {
-                    val divisor = 2
-                    val playerBlocks: MutableList<MutableList<Player>> = mutableListOf<MutableList<Player>>()
-                    for (i in 0..divisor) {
-                        val levels = AppState.levels.filter { (i-1)*AppState.levels.last().toInt()/divisor < it.toInt() && it.toInt() <= i*AppState.levels.last().toInt()/divisor }
-                        val thisPlayers = players.filter { it.level.toString() in levels }.toMutableList()
-                        playerBlocks.add(thisPlayers)
-                    }
-                    val block_modulus = 4
-                    val tempBlock = mutableListOf<Player>()
-                    for (playersBlock in playerBlocks) {
-                        playersBlock.addAll(tempBlock)
-                        tempBlock.clear()
-                        val overflow = (playersBlock.size) % block_modulus
-                        if (overflow != 0) {
-                            repeat(overflow) {
-                                val chosenPlayer = tempBlock.last()
-                                tempBlock.add(chosenPlayer)
-                                playersBlock.remove(chosenPlayer)
-                            }
-                        }
-                    }
+                    val pools = Pools(players, divisor = 2, seed = roundSeed)
+                    pools.equalizePoolCollections(4)
+
                     val matchups = mutableListOf<Matchup>()
-                    for (playersBlock in playerBlocks) {
-                        val thisMatchups = setUpMatchups(playersBlock, "Open", roundSeed,0)
+                    for (poolCollection in pools.pools) {
+                        val thisPlayers = poolCollection.players
+                        val thisPools = Pools(thisPlayers, seed = roundSeed)
+                        thisPools.equalizePoolCollections(2)
+                        thisPools.randomize()
+                        val thisMatchups = setUpMatchups(thisPools, "Open", roundSeed,0)
                         matchups.addAll(thisMatchups)
                     }
                     rounds.add(Round(matchups,breakers))
                 }
                 "All Random" -> {
-                    rounds.add(Round(setUpMatchups(players, "Random", roundSeed),breakers))
+                    val pools = Pools(players, seed = roundSeed)
+                    rounds.add(Round(setUpMatchups(pools, "Random", roundSeed),breakers))
                 }
                 else -> {
                     Log.e(TAG,"Matchmaking mode not implemented")
@@ -500,8 +441,6 @@ class MainActivity : AppCompatActivity() {
         return rounds
     }
 
-    // TODO
-    //private fun dividePlayers()
 
     private fun randomizePlayers(players: MutableList<Player>, seed: Long = AppState.seed): MutableList<Player> {
         val randomizer = Random(seed)
@@ -511,13 +450,6 @@ class MainActivity : AppCompatActivity() {
     private fun randomizeLevels(levels: List<Int>, seed: Long = AppState.seed): Int {
         val randomizer = Random(seed)
         return levels.random(randomizer)
-    }
-
-    private fun randomizePools(pools: List<MutableList<Player>>, seed: Long = AppState.seed): List<MutableList<Player>> {
-        val randomizer = Random(seed)
-        return pools.map { pool ->
-            pool.shuffled(randomizer).toMutableList()
-        }
     }
 
 }
