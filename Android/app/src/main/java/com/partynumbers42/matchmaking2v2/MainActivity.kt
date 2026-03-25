@@ -346,6 +346,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun setUpRounds(nrgames: Int): List<Round> {
 
+        //TODO try to avoid repetitions of matchups between rounds
+
         val breakersLoop = randomizePlayers(AppState.currentParticipants, AppState.seed)
         val breakersCount  = AppState.currentParticipants.size%4
 
