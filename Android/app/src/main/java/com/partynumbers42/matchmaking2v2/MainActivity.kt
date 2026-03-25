@@ -27,7 +27,6 @@ import com.partynumbers42.matchmaking2v2.models.Player
 import androidx.core.view.isVisible
 import com.partynumbers42.matchmaking2v2.models.Pools
 import java.util.Collections.rotate
-import kotlin.collections.last
 import kotlin.random.Random
 
 private const val TAG = "MainActivity"

@@ -20,7 +20,6 @@ object AppState {
     val matchmakingModes = listOf("All Random","True Open","Soft Open","Division All","Division 3","Division 2")
     var currentMatchmakingMode: String = matchmakingModes.first()
     val levels = listOf("0","1","2","3","4","5","6")
-
     fun fetchAndPushMembers(context: Context,onComplete: (Boolean) -> Unit) {
 
         Log.i(TAG,"Fetching members from Sportmember ...")
@@ -68,6 +67,14 @@ object AppState {
         currentClubMembers.removeAll { member ->
             !playerIds.contains(member.sportmemberUserId)
         }
+
+        // just for diagnostics
+        val names = currentClubMembers.map { it.firstname + " " + it.lastname }
+        if (names.distinct() != names) {
+            Log.e(TAG,"${names.size - names.distinct().size} duplicate names in current members")
+        }
+        val sortedClubMembers = currentClubMembers.sortedBy { it.firstname }
+        Log.i(TAG,"Current Members ${sortedClubMembers.map { it.firstname + " " + it.lastname + " (" + it.sportmemberUserId + ")" }}")
 
     }
 

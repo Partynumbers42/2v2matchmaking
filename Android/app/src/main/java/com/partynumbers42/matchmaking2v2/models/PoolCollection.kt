@@ -1,6 +1,9 @@
 package com.partynumbers42.matchmaking2v2.models
 
+import android.util.Log
 import com.partynumbers42.matchmaking2v2.AppState
+
+private const val TAG = "PoolCollection"
 
 public data class PoolCollection(
     var players: MutableList<Player> = mutableListOf<Player>(),
@@ -10,12 +13,9 @@ public data class PoolCollection(
     var size: Int = players.size
     var poolCollection: MutableList<Pool> = mutableListOf<Pool>()
     init {
+        levels.retainAll { level -> players.any { it.level == level } }
         for (level in levels) {
             val thisPlayers = players.filter { it.level == level }.toMutableList()
-            if (thisPlayers.isEmpty()) {
-                levels.remove(level)
-                continue
-            }
             val thisPool = Pool(thisPlayers, level, seed)
             poolCollection.add(thisPool)
         }
@@ -45,7 +45,7 @@ public data class PoolCollection(
         updateSize()
     }
     fun removeLastPlayer() {
-        val lastPool = poolCollection.last()
+        val lastPool = poolCollection.lastOrNull() ?: return
         lastPool.removeLastPlayer()
         if (lastPool.size == 0) {
             poolCollection.removeAt(poolCollection.lastIndex)
@@ -55,7 +55,7 @@ public data class PoolCollection(
         updateSize()
     }
     fun removeFirstPlayer() {
-        val firstPool = poolCollection.first()
+        val firstPool = poolCollection.firstOrNull() ?: return
         firstPool.removeFirstPlayer()
         if (firstPool.size == 0) {
             poolCollection.removeAt(0)
