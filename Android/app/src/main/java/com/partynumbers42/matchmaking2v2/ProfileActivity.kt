@@ -80,6 +80,21 @@ class ProfileActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.menu_logout) {
             FirebaseAuth.getInstance().signOut()
+            // reset app state
+            AppState.signedInClub = null
+            AppState.signedInClubFirebaseIdString = ""
+            AppState.usesSportmember = false
+            AppState.currentClubMembers.clear()
+            AppState.currentClubMembersIds.clear()
+            AppState.currentActivityId = 0
+            AppState.currentParticipants.clear()
+            AppState.nonParticipants.clear()
+            // reset sportmember state
+            SportmemberRepository.signedInClubSportmemberId = 0
+            SportmemberRepository.sportmemberUsername = ""
+            SportmemberRepository.sportmemberPassword = ""
+            SportmemberRepository.sportmemberUserId = 0
+            //
             val intent = Intent(this, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)

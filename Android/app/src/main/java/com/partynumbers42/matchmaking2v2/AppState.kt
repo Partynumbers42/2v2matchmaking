@@ -11,13 +11,14 @@ object AppState {
     var seed: Long = 0
     var signedInClub: Club? = null
     var signedInClubFirebaseIdString: String = ""
+    var usesSportmember: Boolean = false
     var currentClubMembers: MutableList<Player> = mutableListOf<Player>()
     var currentClubMembersIds: MutableList<Long> = mutableListOf<Long>()
     var currentActivityId: Long = 0
     var currentParticipants: MutableList<Player> = mutableListOf<Player>()
     var nonParticipants: MutableList<Player> = mutableListOf<Player>()
     var nrOfMatchups: Int = 4
-    val matchmakingModes = listOf("All Random","True Open","Soft Open","Division All","Division 3","Division 2")
+    val matchmakingModes = listOf("True Open","Soft Open","Division All","Division 3","Division 2","All Random")
     var currentMatchmakingMode: String = matchmakingModes.first()
     val levels = listOf("0","1","2","3","4","5","6")
     fun fetchAndPushMembers(context: Context,onComplete: (Boolean) -> Unit) {

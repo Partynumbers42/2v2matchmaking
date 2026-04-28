@@ -3,7 +3,6 @@ package com.partynumbers42.matchmaking2v2
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.partynumbers42.matchmaking2v2.models.Club
@@ -41,13 +40,16 @@ object FirebaseRepository {
                 AppState.signedInClub  = userSnapshot.toObject(Club::class.java)
                 Log.i(TAG, "signed in club: ${AppState.signedInClub}")
 
+                AppState.usesSportmember = AppState.signedInClub?.usesSportmember ?: false
+
                 AppState.signedInClub?.members?.let {
-                    AppState.currentClubMembers = it.toMutableList()
+                    AppState.currentClubMembers = it.sortedBy{ player -> player.firstname}.toMutableList()
                 }
+                Log.i(TAG, "current members: ${AppState.currentClubMembers}")
+
                 AppState.currentClubMembers.forEach { member ->
                     AppState.currentClubMembersIds.add(member.sportmemberUserId)
                 }
-                Log.i(TAG, "current members: ${AppState.currentClubMembers}")
 
                 // Load Sportmember username and password
                 SportmemberRepository.signedInClubSportmemberId = AppState.signedInClub?.sportmemberId ?: 0L
@@ -55,6 +57,10 @@ object FirebaseRepository {
                 SportmemberRepository.sportmemberPassword = AppState.signedInClub?.sportmemberPassword ?: ""
                 SportmemberRepository.excludeSportmemberUser = AppState.signedInClub?.excludeSportmemberUser ?: false
                 SportmemberRepository.sportmemberUserId = AppState.signedInClub?.sportmemberUserId ?: 0L
+
+                if (!AppState.usesSportmember) {
+                    AppState.nonParticipants = AppState.currentClubMembers.toMutableList()
+                }
 
                 onComplete(true)
             }

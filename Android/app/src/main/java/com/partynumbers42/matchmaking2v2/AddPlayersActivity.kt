@@ -32,6 +32,7 @@ class AddPlayersActivity : AppCompatActivity() {
         showNonParticipatingMembers()
 
         val button = findViewById<Button>(R.id.button)
+        button.isEnabled = AppState.usesSportmember
         button.setOnClickListener {
             SportmemberRepository.fetchParticipants { success ->
                 if (!success) {
