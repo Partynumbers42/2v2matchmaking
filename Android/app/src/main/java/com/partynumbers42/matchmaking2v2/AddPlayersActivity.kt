@@ -1,8 +1,7 @@
 package com.partynumbers42.matchmaking2v2
 
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -11,7 +10,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.partynumbers42.matchmaking2v2.models.Player
 
 private const val TAG = "AddPlayersActivity"
 
@@ -32,7 +30,9 @@ class AddPlayersActivity : AppCompatActivity() {
         showNonParticipatingMembers()
 
         val button = findViewById<Button>(R.id.button)
-        button.isEnabled = AppState.usesSportmember
+        if (!AppState.usesSportmember) {
+            button.visibility = View.GONE
+        }
         button.setOnClickListener {
             SportmemberRepository.fetchParticipants { success ->
                 if (!success) {
@@ -56,7 +56,9 @@ class AddPlayersActivity : AppCompatActivity() {
         val rv_participants = findViewById<RecyclerView>(R.id.rv_participants)
         val participantsAdapter = SmallPlayersAdapter(this, AppState.currentParticipants, true) { player ->
             AppState.currentParticipants.remove(player)
+            AppState.currentParticipants.sortWith(compareBy({ it.firstname }, { it.lastname }))
             AppState.nonParticipants.add(player)
+            AppState.nonParticipants.sortWith(compareBy({ it.firstname }, { it.lastname }))
             showParticipatingMembers()
             showNonParticipatingMembers()
         }
@@ -71,7 +73,9 @@ class AddPlayersActivity : AppCompatActivity() {
         val rv_members = findViewById<RecyclerView>(R.id.rv_members)
         val nonParticipantsAdapter = SmallPlayersAdapter(this, AppState.nonParticipants, true) { player ->
             AppState.nonParticipants.remove(player)
+            AppState.nonParticipants.sortWith(compareBy({ it.firstname }, { it.lastname }))
             AppState.currentParticipants.add(player)
+            AppState.currentParticipants.sortWith(compareBy({ it.firstname }, { it.lastname }))
             showParticipatingMembers()
             showNonParticipatingMembers()
         }

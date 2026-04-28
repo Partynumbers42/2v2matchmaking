@@ -43,7 +43,7 @@ object FirebaseRepository {
                 AppState.usesSportmember = AppState.signedInClub?.usesSportmember ?: false
 
                 AppState.signedInClub?.members?.let {
-                    AppState.currentClubMembers = it.sortedBy{ player -> player.firstname}.toMutableList()
+                    AppState.currentClubMembers = it.sortedBy{ player -> player.firstname + player.lastname}.toMutableList()
                 }
                 Log.i(TAG, "current members: ${AppState.currentClubMembers}")
 

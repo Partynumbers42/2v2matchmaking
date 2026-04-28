@@ -30,8 +30,6 @@ import java.util.Collections.rotate
 import kotlin.random.Random
 
 private const val TAG = "MainActivity"
-
-private var isDataLoaded = false
 class MainActivity : AppCompatActivity() {
 
     data class Matchup(val player1: Player, val player2: Player, val player3: Player, val player4: Player)
@@ -80,7 +78,7 @@ class MainActivity : AppCompatActivity() {
         b_seed.isEnabled = false
         et_seed.isEnabled = false
 
-        if (isDataLoaded) {
+        if (AppState.isDataLoaded) {
             invalidateOptionsMenu()
             b_generate.isEnabled = true
             fabAddPlayers.isEnabled = true
@@ -121,7 +119,7 @@ class MainActivity : AppCompatActivity() {
                                 return@fetchParticipants
                             }
                             runOnUiThread {
-                                isDataLoaded = true
+                                AppState.isDataLoaded = true
                                 invalidateOptionsMenu()
                                 b_generate.isEnabled = true
                                 fabAddPlayers.isEnabled = true
@@ -134,7 +132,7 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 } else {
-                    isDataLoaded = true
+                    AppState.isDataLoaded = true
                     invalidateOptionsMenu()
                     b_generate.isEnabled = true
                     fabAddPlayers.isEnabled = true
@@ -219,7 +217,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        if (isDataLoaded) {
+        if (AppState.isDataLoaded) {
             showParticipatingMembers(AppState.currentParticipants)
         }
         Log.i(TAG, "onStart: Refreshing UI with ${AppState.currentParticipants.size} participants")
@@ -242,7 +240,7 @@ class MainActivity : AppCompatActivity() {
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
         //enable only if data is loaded
         val profileItem = menu?.findItem(R.id.menu_profile)
-        profileItem?.isEnabled = isDataLoaded
+        profileItem?.isEnabled = AppState.isDataLoaded
         return super.onPrepareOptionsMenu(menu)
     }
 

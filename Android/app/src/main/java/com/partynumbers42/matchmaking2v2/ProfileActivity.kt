@@ -34,6 +34,7 @@ class ProfileActivity : AppCompatActivity() {
             insets
         }
 
+        //var levelSortedMembers = AppState.currentClubMembers.sortedWith(compareBy({ it.level }, { it.firstname }, { it.lastname })).toMutableList()
         showMembers(AppState.currentClubMembers)
         showClubInfo(AppState.signedInClub)
 
@@ -44,7 +45,8 @@ class ProfileActivity : AppCompatActivity() {
             FirebaseRepository.saveCurrentMembers(this) { success ->
                 if (success) {
                     Toast.makeText(this, "Database updated!", Toast.LENGTH_SHORT).show()
-                    showMembers(AppState.currentClubMembers)
+                    //levelSortedMembers = AppState.currentClubMembers.sortedWith(compareBy({ it.level }, { it.firstname }, { it.lastname })).toMutableList()
+                    showMembers(AppState.currentClubMembers) //only necessary if changes change order of / existence in of UI
                 } else {
                     Toast.makeText(this, "Failed to update Database", Toast.LENGTH_SHORT).show()
                 }
@@ -59,7 +61,11 @@ class ProfileActivity : AppCompatActivity() {
         val tv_clubid = findViewById<TextView>(R.id.tv_clubid)
 
         tv_club_name.text = signedInClub?.name
-        tv_clubid.text = "(id:${signedInClub?.sportmemberId.toString()})"
+        if (AppState.usesSportmember) {
+            tv_clubid.text = "(id:${signedInClub?.sportmemberId.toString()})"
+        } else {
+            tv_clubid.text = ""
+        }
 
     }
 
@@ -81,6 +87,7 @@ class ProfileActivity : AppCompatActivity() {
         if (item.itemId == R.id.menu_logout) {
             FirebaseAuth.getInstance().signOut()
             // reset app state
+            AppState.isDataLoaded = false
             AppState.signedInClub = null
             AppState.signedInClubFirebaseIdString = ""
             AppState.usesSportmember = false

@@ -11,6 +11,7 @@ object AppState {
     var seed: Long = 0
     var signedInClub: Club? = null
     var signedInClubFirebaseIdString: String = ""
+    var isDataLoaded: Boolean = false
     var usesSportmember: Boolean = false
     var currentClubMembers: MutableList<Player> = mutableListOf<Player>()
     var currentClubMembersIds: MutableList<Long> = mutableListOf<Long>()
@@ -74,8 +75,7 @@ object AppState {
         if (names.distinct() != names) {
             Log.e(TAG,"${names.size - names.distinct().size} duplicate names in current members")
         }
-        val sortedClubMembers = currentClubMembers.sortedBy { it.firstname }
-        Log.i(TAG,"Current Members ${sortedClubMembers.map { it.firstname + " " + it.lastname + " (" + it.sportmemberUserId + ")" }}")
+        Log.i(TAG,"Current Members ${currentClubMembers.map { it.firstname + " " + it.lastname + " (" + it.sportmemberUserId + ")" }}")
 
     }
 
