@@ -134,7 +134,6 @@ class MainActivity : AppCompatActivity() {
                                 et_nrgames.setText(AppState.nrOfMatchups.toString())
                                 showActivites(spinner_activity)
                                 showParticipatingMembers(AppState.currentParticipants)
-                                AppState.seed = AppState.nextActivityId // seed stays fixed per activity
                             }
                         }
                     }
@@ -146,7 +145,6 @@ class MainActivity : AppCompatActivity() {
                     b_seed.isEnabled = true
                     et_seed.isEnabled = true
                     et_nrgames.setText(AppState.nrOfMatchups.toString())
-                    showActivites(spinner_activity)
                     showParticipatingMembers(AppState.currentParticipants)
                     AppState.seed = System.currentTimeMillis() / (1000 * 60 * 60 * 24)
                 }
@@ -244,19 +242,23 @@ class MainActivity : AppCompatActivity() {
         spinner_activity.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?,view: View?,position: Int,id: Long) {
                 val selectedActivity = AppState.ActivityNames[position]
-                val selectedId = AppState.ActivityIds[position]
-                Log.i(TAG,"Selected activity: $selectedActivity with $selectedId")
-                updateParticipants(AppState.Activities,selectedId)
+                AppState.nextActivityId = AppState.ActivityIds[position]
+                Log.i(TAG,"Selected activity: $selectedActivity with $AppState.nextActivityId")
+                updateParticipants(AppState.Activities,AppState.nextActivityId)
                 Log.i(TAG,"Updated participants: ${AppState.currentParticipants.map { it.firstname + " " + it.lastname }}")
                 showParticipatingMembers(AppState.currentParticipants)
+                AppState.seed = AppState.nextActivityId // seed stays fixed per activity
+                et_seed.setText(AppState.seed.toString())
             }
             override fun onNothingSelected(p0: AdapterView<*>?) {
                 spinner_activity.setSelection(0)
-                updateParticipants(AppState.Activities, AppState.Activities.first().sportmemberId)
+                AppState.nextActivityId = AppState.Activities.first().sportmemberId
+                updateParticipants(AppState.Activities,AppState.nextActivityId)
                 showParticipatingMembers(AppState.currentParticipants)
+                AppState.seed = AppState.nextActivityId // seed stays fixed per activity
+                et_seed.setText(AppState.seed.toString())
             }
         }
-
     }
     private fun showParticipatingMembers(currentParticipants: MutableList<Player>) {
 
