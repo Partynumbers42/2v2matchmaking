@@ -139,10 +139,16 @@ object SportmemberRepository {
             }
             AppState.ActivityNames = activities.map { it.timename }.toMutableList()
             AppState.ActivityIds = activities.map { it.sportmemberId }.toMutableList()
-            Log.i(TAG, "Activities on: ${AppState.ActivityNames} with ID: ${AppState.ActivityIds}")
+            Log.i(TAG, "Activities on: ${AppState.ActivityNames} with IDs: ${AppState.ActivityIds}")
 
             if (activities.isNotEmpty()) {
-                updateParticipants(activities, AppState.Activities.first().sportmemberId)
+                var startId = 0L
+                if (AppState.nextActivityId in AppState.ActivityIds) {
+                    startId = AppState.nextActivityId
+                } else {
+                    startId = activities.first().sportmemberId
+                }
+                updateParticipants(activities, startId)
             } else {
                 Log.i(TAG, "No activities found")
             }
