@@ -2,6 +2,7 @@ package com.partynumbers42.matchmaking2v2
 
 import android.util.Log
 import android.content.Context
+import com.partynumbers42.matchmaking2v2.models.Activity
 import com.partynumbers42.matchmaking2v2.models.Club
 import com.partynumbers42.matchmaking2v2.models.Player
 
@@ -15,7 +16,10 @@ object AppState {
     var usesSportmember: Boolean = false
     var currentClubMembers: MutableList<Player> = mutableListOf<Player>()
     var currentClubMembersIds: MutableList<Long> = mutableListOf<Long>()
-    var currentActivityId: Long = 0
+    var Activities: List<Activity> = mutableListOf<Activity>()
+    var ActivityNames: MutableList<String> = mutableListOf<String>()
+    var ActivityIds: MutableList<Long> = mutableListOf<Long>()
+    var nextActivityId: Long = 0
     var currentParticipants: MutableList<Player> = mutableListOf<Player>()
     var nonParticipants: MutableList<Player> = mutableListOf<Player>()
     var nrOfMatchups: Int = 4

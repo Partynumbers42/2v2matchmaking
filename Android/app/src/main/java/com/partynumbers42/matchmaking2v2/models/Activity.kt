@@ -5,5 +5,6 @@ public data class Activity(
     val name: String,
     val starttime: String,
     val endtime: String,
+    val timename: String,
     val players: List<Player>,
 )

@@ -2,7 +2,6 @@ package com.partynumbers42.matchmaking2v2
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
@@ -93,7 +92,7 @@ class ProfileActivity : AppCompatActivity() {
             AppState.usesSportmember = false
             AppState.currentClubMembers.clear()
             AppState.currentClubMembersIds.clear()
-            AppState.currentActivityId = 0
+            AppState.nextActivityId = 0
             AppState.currentParticipants.clear()
             AppState.nonParticipants.clear()
             // reset sportmember state

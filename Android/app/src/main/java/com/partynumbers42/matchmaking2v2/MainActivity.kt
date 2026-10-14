@@ -25,6 +25,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.partynumbers42.matchmaking2v2.models.Player
 import androidx.core.view.isVisible
+import com.partynumbers42.matchmaking2v2.SportmemberRepository.updateParticipants
+import com.partynumbers42.matchmaking2v2.models.Activity
 import com.partynumbers42.matchmaking2v2.models.Pools
 import java.util.Collections.rotate
 import kotlin.random.Random
@@ -40,6 +42,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var b_seed: Button
     private lateinit var et_seed: EditText
     private lateinit var tv_seed: TextView
+    private lateinit var spinner_activity: Spinner
     private lateinit var spinner_mode: Spinner
     private lateinit var fabAddPlayers: FloatingActionButton
 
@@ -58,6 +61,8 @@ class MainActivity : AppCompatActivity() {
 
         b_generate = findViewById(R.id.b_generate)
         fabAddPlayers = findViewById(R.id.fabAddPlayers)
+        spinner_activity = findViewById(R.id.spinner_activity)
+        spinner_activity.visibility = View.GONE
 
         tv_nrgames = findViewById(R.id.tv_nrgames)
         et_nrgames = findViewById(R.id.et_nrgames)
@@ -84,6 +89,7 @@ class MainActivity : AppCompatActivity() {
             fabAddPlayers.isEnabled = true
             b_seed.isEnabled = true
             et_seed.isEnabled = true
+            showActivites(spinner_activity)
             showParticipatingMembers(AppState.currentParticipants)
         } else {
 
@@ -126,8 +132,9 @@ class MainActivity : AppCompatActivity() {
                                 b_seed.isEnabled = true
                                 et_seed.isEnabled = true
                                 et_nrgames.setText(AppState.nrOfMatchups.toString())
+                                showActivites(spinner_activity)
                                 showParticipatingMembers(AppState.currentParticipants)
-                                AppState.seed = AppState.currentActivityId // seed stays fixed per activity
+                                AppState.seed = AppState.nextActivityId // seed stays fixed per activity
                             }
                         }
                     }
@@ -139,6 +146,7 @@ class MainActivity : AppCompatActivity() {
                     b_seed.isEnabled = true
                     et_seed.isEnabled = true
                     et_nrgames.setText(AppState.nrOfMatchups.toString())
+                    showActivites(spinner_activity)
                     showParticipatingMembers(AppState.currentParticipants)
                     AppState.seed = System.currentTimeMillis() / (1000 * 60 * 60 * 24)
                 }
@@ -190,9 +198,9 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        val adapter = ArrayAdapter(this,R.layout.spinner_mode_item, AppState.matchmakingModes)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinner_mode.adapter = adapter
+        val adapterMode = ArrayAdapter(this,R.layout.spinner_mode_item, AppState.matchmakingModes)
+        adapterMode.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner_mode.adapter = adapterMode
         spinner_mode.setSelection(0)
         spinner_mode.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?,view: View?,position: Int,id: Long) {
@@ -223,6 +231,33 @@ class MainActivity : AppCompatActivity() {
         Log.i(TAG, "onStart: Refreshing UI with ${AppState.currentParticipants.size} participants")
     }
 
+
+    private fun showActivites(spinner_activity: Spinner) {
+
+        spinner_activity.visibility = View.VISIBLE
+
+        Log.i(TAG,"Found activities: ${AppState.ActivityNames}")
+        val adapterActivity = ArrayAdapter(this,R.layout.spinner_mode_item, AppState.ActivityNames)
+        adapterActivity.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner_activity.adapter = adapterActivity
+        spinner_activity.setSelection(0)
+        spinner_activity.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?,view: View?,position: Int,id: Long) {
+                val selectedActivity = AppState.ActivityNames[position]
+                val selectedId = AppState.ActivityIds[position]
+                Log.i(TAG,"Selected activity: $selectedActivity with $selectedId")
+                updateParticipants(AppState.Activities,selectedId)
+                Log.i(TAG,"Updated participants: ${AppState.currentParticipants.map { it.firstname + " " + it.lastname }}")
+                showParticipatingMembers(AppState.currentParticipants)
+            }
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+                spinner_activity.setSelection(0)
+                updateParticipants(AppState.Activities, AppState.Activities.first().sportmemberId)
+                showParticipatingMembers(AppState.currentParticipants)
+            }
+        }
+
+    }
     private fun showParticipatingMembers(currentParticipants: MutableList<Player>) {
 
         val rv_participants = findViewById<RecyclerView>(R.id.rvplayers)

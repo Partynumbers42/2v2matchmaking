@@ -1,7 +1,6 @@
 package com.partynumbers42.matchmaking2v2
 
 import android.util.Log
-import android.widget.Toast
 import com.partynumbers42.matchmaking2v2.models.ActivitiesResponse
 import com.partynumbers42.matchmaking2v2.models.Activity
 import com.partynumbers42.matchmaking2v2.models.MembersResponse
@@ -17,6 +16,7 @@ import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
 import kotlin.collections.forEach
+import kotlin.text.substring
 
 private const val TAG = "SportmemberRepository"
 
@@ -119,7 +119,8 @@ object SportmemberRepository {
                                 Log.i(TAG, "Player canceled: ${player.name}")
                             }
                         }
-                        activitiesCurrentCall.add(Activity(activity.id,activity.name,activity.starttime,activity.endtime,playersCurrentCall))
+                        val timename = "${activity.starttime.substring(8, 10)}.${activity.starttime.substring(5, 7)}.${activity.starttime.substring(0,4)} (${activity.starttime.substring(11, 16)})"
+                        activitiesCurrentCall.add(Activity(activity.id,activity.name,activity.starttime,activity.endtime,timename,playersCurrentCall))
                         Log.i(TAG, "Found activity: ${activity.name} (${activity.starttime} ${activity.endtime}): ${playersCurrentCall.size} players ")
                     }
                     onComplete(activitiesCurrentCall)
@@ -131,19 +132,21 @@ object SportmemberRepository {
 
     fun fetchParticipants(onComplete: (Boolean) -> Unit) {
         fetchActivities(onComplete = { activities ->
-            val activity = activities.firstOrNull()
-            Log.i(TAG, "Next activity: ${activity?.name}")
 
-            AppState.currentActivityId = activity?.sportmemberId ?: 0
-
-            val players = activity?.players
-
-            AppState.currentParticipants = players as MutableList<Player>
-            AppState.nonParticipants = AppState.currentClubMembers.filter { !AppState.currentParticipants.contains(it) }.toMutableList()
-
-            for (player in AppState.currentParticipants){
-                Log.i(TAG, "Found participant: ${player.firstname} ${player.lastname}")
+            AppState.Activities = activities
+            for (activity in AppState.Activities) {
+                Log.i(TAG, "Found activity on day: ${activity.timename}")
             }
+            AppState.ActivityNames = activities.map { it.timename }.toMutableList()
+            AppState.ActivityIds = activities.map { it.sportmemberId }.toMutableList()
+            Log.i(TAG, "Activities on: ${AppState.ActivityNames} with ID: ${AppState.ActivityIds}")
+
+            if (activities.isNotEmpty()) {
+                updateParticipants(activities, AppState.Activities.first().sportmemberId)
+            } else {
+                Log.i(TAG, "No activities found")
+            }
+
             onComplete(true)
         },
             onError = { exception ->
@@ -151,6 +154,19 @@ object SportmemberRepository {
                 onComplete(false)
             })
 
+    }
+
+    fun updateParticipants(activities: List<Activity>, id: Long) {
+        AppState.nextActivityId = id
+        val selectedActivity = activities.find { it.sportmemberId == id }
+        Log.i(TAG, "Selected activity: ${selectedActivity?.name} on ${selectedActivity?.timename} (id:${selectedActivity?.sportmemberId})")
+        val players = selectedActivity?.players
+        AppState.currentParticipants = players as MutableList<Player>
+        AppState.nonParticipants = AppState.currentClubMembers.filter { !AppState.currentParticipants.contains(it) }.toMutableList()
+
+        for (player in AppState.currentParticipants){
+            Log.i(TAG, "Found participant: ${player.firstname} ${player.lastname}")
+        }
     }
 
 
