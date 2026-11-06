@@ -22,3 +22,5 @@ app/src/main/res/values/secrets.xml
 *.keystore
 # Signing properties
 signing.properties
+# Jupyter Notebooks
+.ipynb_checkpoints/
