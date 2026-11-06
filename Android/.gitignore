@@ -8,9 +8,17 @@
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 .DS_Store
-/build
+build/
 /captures
 .externalNativeBuild
 .cxx
 local.properties
-Android/app/src/main/res/values/secrets.xml
+# Firebase / Google Services
+app/google-services.json
+# Secrets
+app/src/main/res/values/secrets.xml
+# Keystore files (VERY IMPORTANT)
+*.jks
+*.keystore
+# Signing properties
+signing.properties
